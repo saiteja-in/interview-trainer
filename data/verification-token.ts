@@ -14,7 +14,7 @@ export const getVerificationTokenByToken=async(token:string)=>{
         const verificationToken=await db.verificationToken.findUnique({
             where:{token}
         });
-        console.log("verification token",verificationToken)
+        // console.log("verification token",verificationToken)
         return verificationToken;
     } catch (error) {
         return null;

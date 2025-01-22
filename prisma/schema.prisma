@@ -20,15 +20,17 @@ model User {
   image         String?
   role          UserRole  @default(USER)
   password      String?
-  video         Video?
+  videos        Video[]   // Updated: One-to-many relationship
   accounts      Account[]
 }
 
 model Video {
   id        String  @id @default(cuid())
-  userId    String  @unique
-  resumeUrl String?
+  userId    String
+  videoUrl  String?
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId]) // Optional: Improves query performance
 }
 
 model Account {

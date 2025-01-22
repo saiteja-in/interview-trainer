@@ -9,7 +9,7 @@ import {
 } from "@/routes";
 const { auth } = NextAuth(authConfig);
 export default auth((req) => {
-  console.log("route", req.nextUrl.pathname);
+  // console.log("route", req.nextUrl.pathname);
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);

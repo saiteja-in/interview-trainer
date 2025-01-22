@@ -27,9 +27,9 @@ export const { handlers, signIn, signOut, auth ,unstable_update} = NextAuth({
       return true;
     },
     async session({ token, session }) {
-      console.log({
-        sessionToken: token,
-      });
+      // console.log({
+      //   sessionToken: token,
+      // });
       if (token.sub && session.user) {
         session.user.id = token.sub;
       }
@@ -44,7 +44,7 @@ export const { handlers, signIn, signOut, auth ,unstable_update} = NextAuth({
       return session;
     },
     async jwt({ token }) {
-      console.log("i am saiteja")
+      // console.log("i am saiteja")
       if (!token.sub) return token;
       const existingUser = await getUserById(token.sub);
       if (!existingUser) return token;
