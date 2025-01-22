@@ -26,9 +26,17 @@ model User {
   image         String?
   role          UserRole  @default(USER)
   password      String?
+    video          Video?
   accounts      Account[]
 }
 
+model Video {
+  id        String  @id @default(cuid())
+  userId    String  @unique
+  routeId   String  @unique
+  resumeUrl String?
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 model Account {
   id                String  @id @default(cuid())
   userId            String
