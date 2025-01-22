@@ -1,11 +1,9 @@
-import React from 'react'
+import VideoUploadForm from "./_components/VideoUploadForm";
 
-const page = () => {
+export default function Page() {
   return (
-    <div className='min-h-screen'>
-      hello there
+    <div className="flex justify-center items-center min-h-screen p-4">
+      <VideoUploadForm />
     </div>
-  )
+  );
 }
-
-export default page
