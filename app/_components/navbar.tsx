@@ -48,6 +48,16 @@ const NavBar = async () => {
                 <span className="font-medium">Upload Video</span>
               </Link>
             </Button>
+            <Button
+              variant="ghost"
+              asChild
+              className="group flex items-center gap-2 transition-all duration-300 hover:bg-primary/10"
+            >
+             <Link href="/videos">
+                <VideoIcon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                <span className="font-medium">View Videos</span>
+              </Link>
+            </Button>
           </nav>
         </div>
 
