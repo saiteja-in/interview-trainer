@@ -189,7 +189,7 @@ export const sendVerificationEmail = async (
                         margin: 0;
                         font-weight: 500;
                       ">
-                        Made with ❤️ by Sai Teja
+                        
                       </p>
                     </td>
                   </tr>

@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { LayoutDashboard, Lightbulb, User, LogOut } from "lucide-react";
+import { LayoutDashboard, Lightbulb, User, LogOut, VideoIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LoginButton } from "@/components/auth/login-button";
 import { currentUser } from "@/lib/auth";
@@ -33,7 +33,7 @@ const NavBar = async () => {
               <div className="absolute -inset-1 animate-pulse rounded-full bg-yellow-500/20 group-hover:bg-yellow-400/30" />
             </div>
             <span className="hidden bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent md:block">
-              APP
+              Interview Trainer
             </span>
           </Link>
 
@@ -43,9 +43,9 @@ const NavBar = async () => {
               asChild
               className="group flex items-center gap-2 transition-all duration-300 hover:bg-primary/10"
             >
-              <Link href="/">
-                <LayoutDashboard className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-                <span className="font-medium">Dashboard</span>
+              <Link href="/videoupload">
+                <VideoIcon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                <span className="font-medium">Upload Video</span>
               </Link>
             </Button>
           </nav>
