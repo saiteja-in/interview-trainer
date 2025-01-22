@@ -1,131 +1,217 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { getSignedURL } from "@/actions/videoupload";
+import { useState, useRef } from "react"
+import { cn } from "@/lib/utils"
+import { Upload, X, FileText } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { getSignedURL } from "@/actions/videoupload"
 
 export default function VideoUploadForm() {
-  const [file, setFile] = useState<File | undefined>(undefined);
-  const [fileUrl, setFileUrl] = useState<string | undefined>(undefined);
-  const [statusMessage, setStatusMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false)
+  const [preview, setPreview] = useState<string | null>(null)
+  const [statusMessage, setStatusMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [file, setFile] = useState<File | null>(null)
+  const [fileName, setFileName] = useState("")
+  const [fileSize, setFileSize] = useState(0)
 
   const computeSHA256 = async (file: File) => {
-    const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-    return hashHex;
-  };
+    const buffer = await file.arrayBuffer()
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("")
+    return hashHex
+  }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!file) return;
+  function handleFile(file: File) {
+    if (file.type !== "video/mp4" && file.type !== "video/webm") {
+      setStatusMessage("Please upload MP4 or WebM video files only")
+      return
+    }
 
-    setStatusMessage("Uploading video...");
-    setLoading(true);
+    setFile(file)
+    setFileName(file.name)
+    setFileSize(file.size)
+    const url = URL.createObjectURL(file)
+    setPreview(url)
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setIsDragging(false)
+
+    const droppedFile = e.dataTransfer.files[0]
+    if (!droppedFile) return
+
+    handleFile(droppedFile)
+  }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selectedFile = e.target.files?.[0]
+    if (!selectedFile) return
+
+    handleFile(selectedFile)
+  }
+
+  function removeFile() {
+    if (preview) {
+      URL.revokeObjectURL(preview)
+    }
+    setFile(null)
+    setFileName("")
+    setFileSize(0)
+    setPreview(null)
+    setStatusMessage("")
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
+  const handleSubmit = async () => {
+    if (!file) return
+
+    setStatusMessage("Uploading video...")
+    setLoading(true)
 
     try {
       const signedURLResult = await getSignedURL({
         fileType: file.type,
         checksum: await computeSHA256(file),
-      });
+      })
 
       if (signedURLResult.failure !== undefined) {
-        throw new Error(signedURLResult.failure);
+        throw new Error(signedURLResult.failure)
       }
 
-      const url = signedURLResult.success.url;
+      const url = signedURLResult.success.url
       await fetch(url, {
         method: "PUT",
         body: file,
         headers: {
           "Content-Type": file.type,
         },
-      });
+      })
 
-      setStatusMessage("Video uploaded successfully!");
+      setStatusMessage("Video uploaded successfully!")
     } catch (error) {
-      setStatusMessage("Failed to upload video");
-      console.error(error);
+      setStatusMessage("Failed to upload video")
+      console.error(error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    setFile(file);
-    
-    if (fileUrl) {
-      URL.revokeObjectURL(fileUrl);
-    }
-    
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setFileUrl(url);
-    } else {
-      setFileUrl(undefined);
-    }
-  };
+  }
 
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>Upload Video</CardTitle>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {statusMessage && (
-            <Alert>
-              <AlertDescription>{statusMessage}</AlertDescription>
-            </Alert>
+      <CardContent className="space-y-4">
+        {statusMessage && (
+          <Alert>
+            <AlertDescription>{statusMessage}</AlertDescription>
+          </Alert>
+        )}
+
+        <div
+          className={cn(
+            "relative group cursor-pointer",
+            "rounded-lg border-2 border-dashed",
+            "transition-colors duration-200",
+            isDragging
+              ? "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10"
+              : "border-zinc-200 dark:border-zinc-800"
           )}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setIsDragging(true)
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault()
+              fileInputRef.current?.click()
+            }
+          }}
+          aria-label="Upload video"
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="video/mp4,video/webm"
+            onChange={handleChange}
+            className="hidden"
+          />
 
-          <div className="space-y-4">
-            <Input
-              type="file"
-              accept="video/mp4,video/webm"
-              onChange={handleChange}
-              className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold hover:file:bg-violet-100"
-            />
-
-            {fileUrl && file && (
-              <div className="rounded-lg overflow-hidden w-full aspect-video relative">
-                <video
-                  className="w-full h-full object-cover"
-                  src={fileUrl}
-                  controls
-                  playsInline
-                />
+          <div className="p-8 space-y-4">
+            {!fileName ? (
+              <div className="flex flex-col items-center gap-2">
+                <Upload className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Drag and drop or click to upload video
+                </p>
+                <p className="text-xs text-zinc-500">MP4 or WebM format</p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4">
+                {preview ? (
+                  <div className="relative w-48 rounded-lg overflow-hidden aspect-video">
+                    <video
+                      src={preview}
+                      className="w-full h-full object-cover"
+                      controls
+                      playsInline
+                    />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                    <FileText className="w-8 h-8 text-zinc-400" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{fileName}</p>
+                  <p className="text-xs text-zinc-500">
+                    {fileSize ? `${(fileSize / 1024 / 1024).toFixed(2)} MB` : "0 MB"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    removeFile()
+                  }}
+                  className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
+                >
+                  <X className="w-5 h-5 text-zinc-400" />
+                </button>
               </div>
             )}
-
-            <div className="flex justify-between items-center">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setFile(undefined);
-                  setFileUrl(undefined);
-                }}
-                disabled={!file || loading}
-              >
-                Remove
-              </Button>
-              
-              <Button type="submit" disabled={!file || loading}>
-                {loading ? "Uploading..." : "Upload Video"}
-              </Button>
-            </div>
           </div>
-        </form>
+        </div>
+
+        <div className="flex justify-end space-x-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={removeFile}
+            disabled={!file || loading}
+          >
+            Remove
+          </Button>
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!file || loading}
+          >
+            {loading ? "Uploading..." : "Upload Video"}
+          </Button>
+        </div>
       </CardContent>
     </Card>
-  );
+  )
 }
