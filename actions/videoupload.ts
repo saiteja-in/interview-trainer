@@ -30,8 +30,6 @@ type GetSignedURLParams = {
 };
 
 export async function getSignedURL({ fileType, checksum }: GetSignedURLParams) {
-  console.log("server file type",fileType)
-  console.log("server checksum",checksum)
   const user = await currentUser();
 
   if (!user) {
@@ -43,9 +41,8 @@ export async function getSignedURL({ fileType, checksum }: GetSignedURLParams) {
   }
 
   const fileName = generateFileName(); // Unique file name
-  console.log("server file name (unique file name)",fileName)
   const videoUrl = `https://${process.env.AWS_BUCKET_NAME1}.s3.${process.env.AWS_BUCKET_REGION1}.amazonaws.com/${fileName}`;
-  console.log("videoUrl (main link)",videoUrl)
+
   const putObjectCommand = new PutObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME1!,
     Key: fileName,
@@ -59,12 +56,10 @@ export async function getSignedURL({ fileType, checksum }: GetSignedURLParams) {
   const signedURL = await getSignedUrl(s3, putObjectCommand, {
     expiresIn: 60,
   });
-  console.log("signedUrl server",signedURL)
 
   try {
     // Add video URL to the database
     const result = await addVideo({ videoUrl, userId: user.id! });
-    console.log("result",result)
 
     if (result.failure) {
       return { failure: "Failed to save video to the database" };
