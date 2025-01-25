@@ -31,11 +31,14 @@ export default function VideoUploadForm() {
       setStatusMessage("Please upload MP4 or WebM video files only")
       return
     }
-
+    console.log("File",file)
     setFile(file)
+    console.log("File Name",file.name)
     setFileName(file.name)
+    console.log("File Size",file.size)
     setFileSize(file.size)
     const url = URL.createObjectURL(file)
+    console.log("Object Url",url)
     setPreview(url)
   }
 
@@ -77,10 +80,12 @@ export default function VideoUploadForm() {
     setLoading(true)
 
     try {
+      console.log("File Type",file.type)
       const signedURLResult = await getSignedURL({
         fileType: file.type,
         checksum: await computeSHA256(file),
       })
+      console.log("signed Url",signedURLResult)
 
       if (signedURLResult.failure !== undefined) {
         throw new Error(signedURLResult.failure)
