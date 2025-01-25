@@ -1,3 +1,4 @@
+//working good with the dummy.tsx
 "use server";
 
 import { currentUser } from "@/lib/auth";
@@ -23,7 +24,6 @@ const s3 = new S3Client({
 });
 
 const acceptedTypes = ["video/mp4", "video/webm"];
-const MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024; // 5GB max file size
 
 type GetSignedURLParams = {
   fileType: string;
@@ -52,12 +52,14 @@ export async function getSignedURL({
     return { failure: "Invalid file type" };
   }
 
+  // Generate a unique file name if not provided (for multipart upload)
   const uniqueFileName = fileName || generateFileName();
   const videoUrl = `https://${process.env.AWS_BUCKET_NAME1}.s3.${process.env.AWS_BUCKET_REGION1}.amazonaws.com/${uniqueFileName}`;
 
   try {
     if (isMultipart) {
       if (!uploadId) {
+        // Initiate multipart upload
         const createMultipartUploadCommand = new CreateMultipartUploadCommand({
           Bucket: process.env.AWS_BUCKET_NAME1!,
           Key: uniqueFileName,
@@ -77,6 +79,7 @@ export async function getSignedURL({
           } 
         };
       } else {
+        // Generate presigned URL for a specific part
         if (!partNumber) {
           return { failure: "Part number is required for multipart upload" };
         }
@@ -95,6 +98,7 @@ export async function getSignedURL({
         return { success: { url: signedURL } };
       }
     } else {
+      // Single part upload
       const putObjectCommand = new PutObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME1!,
         Key: uniqueFileName,
@@ -109,6 +113,7 @@ export async function getSignedURL({
         expiresIn: 60,
       });
 
+      // Add video URL to the database
       const result = await addVideo({ videoUrl, userId: user.id! });
 
       if (result.failure) {
@@ -133,12 +138,16 @@ export async function completeMultipartUpload({
   parts: Array<{ETag: string, PartNumber: number}>
 }) {
   const user = await currentUser();
+  console.log("filename",fileName)
+  console.log("uploadId",uploadId)
+  console.log("parts",parts)
 
   if (!user) {
     return { failure: "Not authenticated" };
   }
 
   try {
+    // Sort parts by part number in ascending order
     const sortedParts = parts.sort((a, b) => a.PartNumber - b.PartNumber);
 
     const completeMultipartUploadCommand = new CompleteMultipartUploadCommand({
@@ -154,7 +163,9 @@ export async function completeMultipartUpload({
     });
 
     const result = await s3.send(completeMultipartUploadCommand);
-    // Continued from previous artifact
+    console.log("result",result)
+
+    // Add video URL to the database
     const videoUrl = `https://${process.env.AWS_BUCKET_NAME1}.s3.${process.env.AWS_BUCKET_REGION1}.amazonaws.com/${fileName}`;
     const addResult = await addVideo({ videoUrl, userId: user.id! });
 
@@ -179,7 +190,6 @@ export async function getUserVideo() {
   try {
     const videos = await db.video.findMany({
       where: { userId: user.id },
-      // orderBy: { createdAt: 'desc' }
     });
 
     if (!videos || videos.length === 0) {
@@ -201,60 +211,17 @@ export async function addVideo({
   userId: string;
 }) {
   try {
-    const video = await db.video.create({
+    // Create a new video entry for every upload
+    await db.video.create({
       data: {
         userId,
         videoUrl,
-        // processingStatus: 'PENDING', // Add processing status tracking
-        // metadata: {
-        //   uploadedAt: new Date().toISOString()
-        // }
-      }
+      },
     });
-
-    // Optional: Trigger video processing or thumbnail generation
-    // await triggerVideoProcessing(video.id);
-
     revalidatePath("/videos")
-    return { success: true, videoId: video.id };
+    return { success: true };
   } catch (error) {
     console.error("Error adding video:", error);
     return { failure: "Failed to add video to the database" };
   }
 }
-
-// Optional: Video processing trigger
-// async function triggerVideoProcessing(videoId: string) {
-//   try {
-//     // Placeholder for video processing logic
-//     // Could involve sending a message to a queue, 
-//     // calling a video processing service, etc.
-//     await db.video.update({
-//       where: { id: videoId },
-//       data: { 
-//         processingStatus: 'PROCESSING' 
-//       }
-//     });
-//   } catch (error) {
-//     console.error("Video processing trigger failed:", error);
-//   }
-// }
-
-// // Optional: Error logging and monitoring
-// export async function logUploadError(errorDetails: {
-//   userId: string, 
-//   fileType: string, 
-//   fileSize: number, 
-//   errorMessage: string
-// }) {
-//   try {
-//     await db.uploadError.create({
-//       data: {
-//         ...errorDetails,
-//         timestamp: new Date()
-//       }
-//     });
-//   } catch (error) {
-//     console.error("Failed to log upload error:", error);
-//   }
-// }

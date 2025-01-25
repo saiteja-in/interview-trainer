@@ -1,6 +1,7 @@
+//working good- but large files with chunks take same time as single large upload
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef } from "react"
 import { cn } from "@/lib/utils"
 import { Upload, X, FileText } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,9 +13,6 @@ type UploadedPart = {
   ETag: string;
   PartNumber: number;
 }
-
-const MAX_CONCURRENT_UPLOADS = 5
-const NETWORK_TEST_INTERVAL = 60000 // 1 minute
 
 export default function VideoUploadForm() {
   const [isDragging, setIsDragging] = useState(false)
@@ -34,150 +32,19 @@ export default function VideoUploadForm() {
     return hashArray.map(b => b.toString(16).padStart(2, "0")).join("")
   }
 
-  const calculateOptimalChunkSize = (fileSize: number): number => {
-    if (fileSize < 100 * 1024 * 1024) return 10 * 1024 * 1024 
-    if (fileSize < 500 * 1024 * 1024) return 25 * 1024 * 1024
-    return 50 * 1024 * 1024
-  }
-
-  const uploadChunks = async (file: File, CHUNK_SIZE: number, uploadId: string, fileName: string) => {
-    const totalParts = Math.ceil(file.size / CHUNK_SIZE)
-    const uploadedParts: UploadedPart[] = []
-
-    const uploadChunk = async (partNumber: number) => {
-      const start = (partNumber - 1) * CHUNK_SIZE
-      const end = Math.min(start + CHUNK_SIZE, file.size)
-      const chunk = file.slice(start, end)
-      const chunkFile = new File([chunk], file.name, { type: file.type })
-
-      const presignedURLResult = await getSignedURL({
-        fileType: file.type,
-        checksum: await computeSHA256(chunkFile),
-        isMultipart: true,
-        uploadId,
-        partNumber,
-        fileName
-      })
-
-      const presignedURL = presignedURLResult.success?.url
-      if (!presignedURL) throw new Error("Failed to get presigned URL")
-
-      const response = await fetch(presignedURL, {
-        method: "PUT",
-        body: chunk,
-        headers: { "Content-Type": file.type }
-      })
-
-      const etag = response.headers.get("ETag")
-      if (!etag) throw new Error("ETag missing from response")
-
-      return { ETag: etag, PartNumber: partNumber }
-    }
-
-    const uploadQueue: Promise<UploadedPart>[] = []
-    for (let partNumber = 1; partNumber <= totalParts; partNumber++) {
-      const uploadPromise = uploadChunk(partNumber)
-      uploadQueue.push(uploadPromise)
-
-      if (uploadQueue.length === MAX_CONCURRENT_UPLOADS || partNumber === totalParts) {
-        const batchResults = await Promise.all(uploadQueue)
-        uploadedParts.push(...batchResults)
-        uploadQueue.length = 0
-        
-        setUploadProgress(Math.floor((uploadedParts.length / totalParts) * 100))
-      }
-    }
-
-    return uploadedParts
-  }
-
-  const handleSubmit = async () => {
-    if (!file) return
-
-    setStatusMessage("Preparing upload...")
-    setLoading(true)
-
-    try {
-      const checksum = await computeSHA256(file)
-      const CHUNK_SIZE = calculateOptimalChunkSize(file.size)
-      const isMultipartUpload = file.size > CHUNK_SIZE
-
-      if (isMultipartUpload) {
-        const signedURLResult = await getSignedURL({
-          fileType: file.type,
-          checksum,
-          isMultipart: true
-        })
-
-        if (signedURLResult.failure) {
-          throw new Error(signedURLResult.failure)
-        }
-
-        const uploadId = signedURLResult.success?.uploadId
-        const fileName = signedURLResult.success?.fileName
-
-        if (!uploadId || !fileName) {
-          throw new Error("Invalid upload parameters")
-        }
-
-        const uploadedParts = await uploadChunks(file, CHUNK_SIZE, uploadId, fileName)
-
-        const completeResult = await completeMultipartUpload({
-          fileName,
-          uploadId,
-          parts: uploadedParts
-        })
-
-        if (completeResult.failure) {
-          throw new Error(completeResult.failure)
-        }
-
-        setStatusMessage("Video uploaded successfully!")
-      } else {
-        const signedURLResult = await getSignedURL({
-          fileType: file.type,
-          checksum,
-          isMultipart: false
-        })
-
-        if (signedURLResult.failure) {
-          throw new Error(signedURLResult.failure)
-        }
-
-        const signedURL = signedURLResult.success?.url
-        if (!signedURL) {
-          throw new Error("Failed to get signed URL")
-        }
-
-        await fetch(signedURL, {
-          method: "PUT",
-          body: file,
-          headers: {
-            "Content-Type": file.type,
-          }
-        })
-
-        setStatusMessage("Video uploaded successfully!")
-      }
-    } catch (error) {
-      console.error(error)
-      setStatusMessage("Failed to upload video")
-    } finally {
-      setLoading(false)
-      setUploadProgress(0)
-    }
-  }
-
-  // Rest of the existing component remains the same
   function handleFile(file: File) {
     if (file.type !== "video/mp4" && file.type !== "video/webm") {
       setStatusMessage("Please upload MP4 or WebM video files only")
       return
     }
     setFile(file)
+    console.log("file",file)
     setFileName(file.name)
+    console.log("filename",file.name)
     setFileSize(file.size)
+    console.log("filesize",file.size)
     const url = URL.createObjectURL(file)
+    console.log("url",url)
     setPreview(url)
   }
 
@@ -213,13 +80,153 @@ export default function VideoUploadForm() {
     }
   }
 
+  const handleSubmit = async () => {
+    if (!file) return
+
+    setStatusMessage("Preparing upload...")
+    setLoading(true)
+
+    try {
+      const checksum = await computeSHA256(file)
+      console.log("checksum",checksum)
+      
+      // Determine upload strategy based on file size (e.g., 10MB threshold)
+      const CHUNK_SIZE = 30 * 1024 * 1024 // 10MB
+      const isMultipartUpload = file.size > CHUNK_SIZE
+      console.log("is multipart uplaod",isMultipartUpload)
+
+      if (isMultipartUpload) {
+        // Multipart upload logic
+        const signedURLResult = await getSignedURL({
+          fileType: file.type,
+          checksum,
+          isMultipart: true
+        })
+        console.log("signed url result , multipart",signedURLResult)
+
+        if (signedURLResult.failure) {
+          throw new Error(signedURLResult.failure)
+        }
+
+        const uploadId = signedURLResult.success?.uploadId
+        console.log("upload id ",uploadId)
+        const fileName = signedURLResult.success?.fileName
+        console.log("file name in multipart",fileName)
+
+        if (!uploadId || !fileName) {
+          throw new Error("Invalid upload parameters")
+        }
+
+        // Calculate number of parts
+        const totalParts = Math.ceil(file.size / CHUNK_SIZE)
+        console.log("total parts",totalParts)
+        const uploadPromises: Promise<void>[] = []
+        console.log("uploadPromises",uploadPromises)
+        const uploadedParts: UploadedPart[] = []
+        console.log("uploadParts",uploadedParts)
+
+        for (let partNumber = 1; partNumber <= totalParts; partNumber++) {
+          const start = (partNumber - 1) * CHUNK_SIZE
+          const end = Math.min(start + CHUNK_SIZE, file.size)
+          const chunk = file.slice(start, end)
+          const chunkFile = new File([chunk], file.name, { type: file.type })
+
+          const presignedURLResult = await getSignedURL({
+            fileType: file.type,
+            checksum: await computeSHA256(chunkFile),
+            isMultipart: true,
+            uploadId,
+            partNumber,
+            fileName
+          })
+          console.log("presigned url result",presignedURLResult)
+
+          if (presignedURLResult.failure) {
+            throw new Error(presignedURLResult.failure)
+          }
+
+          const presignedURL = presignedURLResult.success?.url
+          if (!presignedURL) {
+            throw new Error("Failed to get presigned URL")
+          }
+
+          const uploadPromise = fetch(presignedURL, {
+            method: "PUT",
+            body: chunk,
+            headers: {
+              "Content-Type": file.type,
+            }
+          }).then(response => {
+            const etag = response.headers.get("ETag")
+            if (!etag) throw new Error("ETag missing from response")
+            
+            uploadedParts.push({
+              ETag: etag,
+              PartNumber: partNumber
+            })
+            setUploadProgress(Math.floor((partNumber / totalParts) * 100))
+          })
+
+          uploadPromises.push(uploadPromise)
+        }
+
+        await Promise.all(uploadPromises)
+
+        // Complete multipart upload
+        const completeResult = await completeMultipartUpload({
+          fileName,
+          uploadId,
+          parts: uploadedParts
+        })
+        console.log("complete result",completeResult)
+
+        if (completeResult.failure) {
+          throw new Error(completeResult.failure)
+        }
+
+        setStatusMessage("Video uploaded successfully!")
+      } else {
+        // Single part upload (existing logic)
+        const signedURLResult = await getSignedURL({
+          fileType: file.type,
+          checksum,
+          isMultipart: false
+        })
+
+        if (signedURLResult.failure) {
+          throw new Error(signedURLResult.failure)
+        }
+
+        const signedURL = signedURLResult.success?.url
+        if (!signedURL) {
+          throw new Error("Failed to get signed URL")
+        }
+
+        await fetch(signedURL, {
+          method: "PUT",
+          body: file,
+          headers: {
+            "Content-Type": file.type,
+          }
+        })
+
+        setStatusMessage("Video uploaded successfully!")
+      }
+    } catch (error) {
+      console.error(error)
+      setStatusMessage("Failed to upload video")
+    } finally {
+      setLoading(false)
+      setUploadProgress(0)
+    }
+  }
+
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>Upload Video</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Existing render logic remains the same */}
         {statusMessage && (
           <Alert>
             <AlertDescription>{statusMessage}</AlertDescription>
@@ -235,7 +242,6 @@ export default function VideoUploadForm() {
           </div>
         )}
 
-        {/* Existing drop zone and file input code */}
         <div
           className={cn(
             "relative group cursor-pointer",
@@ -260,7 +266,6 @@ export default function VideoUploadForm() {
           }}
           aria-label="Upload video"
         >
-          {/* Existing input and file display logic */}
           <input
             ref={fileInputRef}
             type="file"
@@ -269,7 +274,6 @@ export default function VideoUploadForm() {
             className="hidden"
           />
 
-          {/* File display logic remains the same */}
           <div className="p-8 space-y-4">
             {!fileName ? (
               <div className="flex flex-col items-center gap-2">
