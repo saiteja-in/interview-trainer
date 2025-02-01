@@ -2,7 +2,7 @@
 
 import { currentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { S3Client, PutObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { revalidatePath } from "next/cache";
 
@@ -179,14 +179,43 @@ export async function getUserVideo() {
   try {
     const videos = await db.video.findMany({
       where: { userId: user.id },
-      // orderBy: { createdAt: 'desc' }
     });
 
     if (!videos || videos.length === 0) {
       return { failure: "No videos found for the current user" };
     }
 
-    return { success: videos };
+    // Generate signed URLs for each video
+    const videosWithSignedUrls = await Promise.all(
+      videos.map(async (video) => {
+        if (!video.videoUrl) return video;
+        
+        try {
+          // Extract S3 object key from stored URL
+          const key = video.videoUrl.split('/').pop()!;
+          
+          const getObjectCommand = new GetObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME1!,
+            Key: key,
+          });
+
+          // Generate pre-signed URL valid for 1 hour
+          const signedUrl = await getSignedUrl(s3, getObjectCommand, { 
+            expiresIn: 3600 
+          });
+
+          return {
+            ...video,
+            videoUrl: signedUrl,
+          };
+        } catch (error) {
+          console.error(`Error signing URL for video ${video.id}:`, error);
+          return video; // Return original video if signing fails
+        }
+      })
+    );
+
+    return { success: videosWithSignedUrls };
   } catch (error) {
     console.error("Error fetching videos:", error);
     return { failure: "Failed to fetch videos" };

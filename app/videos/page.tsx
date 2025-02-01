@@ -6,6 +6,7 @@ import { ModeToggle } from "../_components/ModeToggle";
 
 export default async function VideosPage() {
     const videoResult = await getUserVideo();
+    console.log("videoResult",videoResult)
 
     if (videoResult.failure) {
         return (
