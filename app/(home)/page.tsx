@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Mail, User, Shield } from "lucide-react";
+import { MynaHero } from "@/components/home/hero";
 
 const Home = async () => {
   const user = await currentUser();
@@ -13,9 +14,10 @@ const Home = async () => {
     <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-200">
       <NavBar />
       
-      <main className="flex justify-center items-center text-center min-h-screen">
+      {/* <main className="flex justify-center items-center text-center min-h-screen">
         Home Page
-      </main>
+      </main> */}
+      <MynaHero/>
     </div>
   );
 };
