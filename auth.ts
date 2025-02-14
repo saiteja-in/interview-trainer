@@ -3,8 +3,23 @@ import authConfig from "./auth.config";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "./lib/db";
 import { getUserById } from "./actions/user";
-import { UserRole } from "@prisma/client";
+import { UserRole,JobRole } from "@prisma/client";
 import { getAccountByUserId } from "./data/account";
+
+declare module "next-auth" {
+  interface User {
+    jobRole?: JobRole;
+    role: UserRole;
+    isOAuth: boolean;
+  }
+  
+  interface JWT {
+    jobRole?: JobRole;
+    role?: UserRole;
+    isOAuth?: boolean;
+  }
+}
+
 export const { handlers, signIn, signOut, auth ,unstable_update} = NextAuth({
   pages:{
     signIn:"/auth/login",
@@ -36,6 +51,12 @@ export const { handlers, signIn, signOut, auth ,unstable_update} = NextAuth({
       if (token.role && session.user) {
         session.user.role = token.role as UserRole;
       }
+      if (token.role && session.user) {
+        session.user.jobRole = token.jobRole as JobRole;
+      }
+      // if(token.jobRole && session.user){
+      //   session.user.jobRole = token.jobRole as JobRole;
+      // }
       if(session.user){
         session.user.name=token.name ;
         session.user.email=token.email as string;
@@ -55,10 +76,11 @@ export const { handlers, signIn, signOut, auth ,unstable_update} = NextAuth({
       token.name=existingUser.name
       token.email=existingUser.email
       token.role = existingUser.role;
+      token.jobRole = existingUser.jobRole;
       return token;
     },
   },
-  adapter: PrismaAdapter(db),
+  adapter: PrismaAdapter(db) as any,
   session: { strategy: "jwt" },
   ...authConfig,
 });

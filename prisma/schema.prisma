@@ -1,3 +1,4 @@
+// schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,39 +13,97 @@ enum UserRole {
   USER
 }
 
+enum JobRole {
+  FRONTEND_DEVELOPER
+  BACKEND_DEVELOPER
+  DATA_SCIENTIST
+  PRODUCT_MANAGER
+  UX_DESIGNER
+}
+
+enum InterviewStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
 model User {
-  id            String    @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?        @unique
   emailVerified DateTime?
   image         String?
-  role          UserRole  @default(USER)
+  role          UserRole       @default(USER)
+  jobRole       JobRole?
   password      String?
-  videos        Video[]   // Updated: One-to-many relationship
+  
+  videos        Video[]
+  interviews    Interview[]
   accounts      Account[]
 }
 
-model Video {
-  id        String  @id @default(cuid())
-  userId    String
-  videoUrl  String?
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Interview {
+  id          String              @id @default(cuid())
+  userId      String
+  role        JobRole
+  status      InterviewStatus     @default(IN_PROGRESS)
+  startTime   DateTime
+  endTime     DateTime?
+  duration    Int?
+  createdAt   DateTime            @default(now())
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video       Video?
+  questions   InterviewQuestion[]
 
-  @@index([userId]) // Optional: Improves query performance
+  @@index([userId])
+  @@index([status])
+}
+
+model Video {
+  id               String     @id @default(cuid())
+  userId           String
+  interviewId      String?    @unique
+  videoUrl         String?
+  processingStatus String?    // "UPLOADING" | "PROCESSING" | "READY"
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interview        Interview? @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+
+  @@index([interviewId])
+  @@index([userId])
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  role      JobRole
+  question  String
+  interviews InterviewQuestion[]
+}
+
+model InterviewQuestion {
+  id           String     @id @default(cuid())
+  interviewId  String
+  questionId   String
+  response     String?
+  startTime    DateTime?
+  endTime      DateTime?
+  
+  interview    Interview  @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  question     Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([interviewId])
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String    @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?   @db.Text
+  access_token      String?   @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?   @db.Text
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

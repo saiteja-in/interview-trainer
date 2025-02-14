@@ -16,6 +16,12 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Variants, motion, useAnimation, useInView } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
+import { ExtendedUser } from "@/schemas";
+import { useRouter } from "next/navigation";
+
+type Props={
+    user:ExtendedUser | undefined
+}
 
 const labels = [
     { icon: Sparkles, label: "Role-Specific Questions" },
@@ -81,11 +87,18 @@ const featureVariants: Variants = {
   }),
 };
 
-export function MynaHero() {
+export function MynaHero({user}:Props) {
+    const router=useRouter()
   const controls = useAnimation();
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
-
+  const handleStartPractice = () => {
+    if (user) {
+      router.push("/trainer");
+    } else {
+      router.push("/auth/login");
+    }
+  };
   React.useEffect(() => {
     if (isInView) {
       controls.start("visible");
@@ -197,11 +210,12 @@ export function MynaHero() {
               }}
             >
               <Button
-                size="lg"
-                className="rounded-none mt-12 bg-[#FF6B2C] hover:bg-[#FF6B2C]/90 font-mono"
-              >
-                START PRACTICING NOW <ArrowRight className="ml-1 w-4 h-4" />
-              </Button>
+            size="lg"
+            className="rounded-none mt-12 bg-[#FF6B2C] hover:bg-[#FF6B2C]/90 font-mono"
+            onClick={handleStartPractice}
+          >
+            START PRACTICING NOW <ArrowRight className="ml-1 w-4 h-4" />
+          </Button>
             </motion.div>
           </motion.div>
         </section>
