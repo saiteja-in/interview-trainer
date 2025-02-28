@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import Link from "next/link";
 import { LayoutDashboard, Lightbulb, User, LogOut, VideoIcon } from "lucide-react";
@@ -16,9 +17,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ModeToggle } from "./ModeToggle";
+import { ResumeIcon } from "@radix-ui/react-icons";
+import { useRouter } from "next/navigation";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
-const NavBar = async () => {
-  const user = await currentUser();
+const NavBar = () => {
+    const user = useCurrentUser();
+  const router=useRouter()
 
   return (
     <div className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -38,7 +43,7 @@ const NavBar = async () => {
           </Link>
 
           <nav className="flex items-center gap-4">
-            <Button
+            {/* <Button
               variant="ghost"
               asChild
               className="group flex items-center gap-2 transition-all duration-300 hover:bg-primary/10"
@@ -47,7 +52,7 @@ const NavBar = async () => {
                 <VideoIcon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
                 <span className="font-medium">Upload Video</span>
               </Link>
-            </Button>
+            </Button> */}
             <Button
               variant="ghost"
               asChild
@@ -57,6 +62,16 @@ const NavBar = async () => {
                 <VideoIcon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
                 <span className="font-medium">View Videos</span>
               </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              asChild
+              className="group flex items-center gap-2 transition-all duration-300 hover:bg-primary/10"
+            >
+             <Button onClick={()=>router.push("/resume-analysis")}>
+                <ResumeIcon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                <span className="font-medium">Resume Analysis</span>
+              </Button>
             </Button>
           </nav>
         </div>

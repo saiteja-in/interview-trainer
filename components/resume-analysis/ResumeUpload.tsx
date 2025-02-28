@@ -1,4 +1,3 @@
-"use client"
 import React, { useState } from "react";
 import {
   Card,
@@ -16,6 +15,7 @@ import {
   Plus,
   Eye,
 } from "lucide-react";
+import Tesseract from "tesseract.js";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Button } from "../ui/button";
 import {
@@ -27,14 +27,13 @@ import {
   DialogDescription,
   DialogFooter,
 } from "../ui/dialog";
-import Tesseract from "tesseract.js";
+import { Textarea } from "../ui/textarea";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import base64 from "base64-encode-file";
 import axios from "axios";
 import * as pdfjsLib from "pdfjs-dist";
 import { cn } from "@/lib/utils";
-import { Textarea } from "../ui/textarea";
 
 interface JobRequirement {
   id: number;
@@ -111,14 +110,8 @@ const jobDescriptions: JobRequirement[] = [
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.js";
-  interface ResumeUploadProps {
-    selectedJob: any; // Replace 'any' with the appropriate type
-    setSelectedJob: React.Dispatch<React.SetStateAction<any>>; // Replace 'any' with the appropriate type
-    setParsedData: React.Dispatch<React.SetStateAction<any>>; // Replace 'any' with the appropriate type
-    setPdfUrl: React.Dispatch<React.SetStateAction<string>>;
-    setAnalysis: React.Dispatch<React.SetStateAction<any>>; // Replace 'any' with the appropriate type
-  }
-const ResumeUpload: React.FC<ResumeUploadProps> = ({
+
+const ResumeUpload: React.FC = ({
   setPdfUrl,
   setAnalysis,
   setParsedData,
