@@ -13,7 +13,7 @@ const Home = async () => {
   console.log(user)
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-200">
-      <NavBar />
+   
       
       {/* <main className="flex justify-center items-center text-center min-h-screen">
         Home Page

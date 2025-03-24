@@ -30,7 +30,7 @@ const user= useCurrentUser()
 
   return (
     <>
-      <NavBar />
+      {/* <NavBar /> */}
 
       <div>
         {!pdfUrl && (

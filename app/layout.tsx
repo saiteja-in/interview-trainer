@@ -7,6 +7,7 @@ import "./globals.css";
 import { Footer } from "./_components/footer";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
+import NavBar from "./_components/navbar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -44,6 +45,7 @@ export default async function RootLayout({
           >
             {/* <NavBar /> */}
             <NextTopLoader/>
+            <NavBar />
             <main>{children}</main>
             <Footer />
           </ThemeProvider>
