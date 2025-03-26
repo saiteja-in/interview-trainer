@@ -120,6 +120,7 @@ export async function POST(req: NextRequest) {
       jobDescription,
       overallAnalysis
     });
+    console.log(atsAnalysis);
 
     return NextResponse.json({ success: true, atsAnalysis }, { status: 200 });
   } catch (error) {

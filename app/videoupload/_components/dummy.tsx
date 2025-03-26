@@ -38,13 +38,13 @@ export default function VideoUploadForm() {
       return
     }
     setFile(file)
-    console.log("file",file)
+    // console.log("file",file)
     setFileName(file.name)
-    console.log("filename",file.name)
+    // console.log("filename",file.name)
     setFileSize(file.size)
-    console.log("filesize",file.size)
+    // console.log("filesize",file.size)
     const url = URL.createObjectURL(file)
-    console.log("url",url)
+    // console.log("url",url)
     setPreview(url)
   }
 
@@ -88,12 +88,12 @@ export default function VideoUploadForm() {
 
     try {
       const checksum = await computeSHA256(file)
-      console.log("checksum",checksum)
+      // console.log("checksum",checksum)
       
       // Determine upload strategy based on file size (e.g., 10MB threshold)
       const CHUNK_SIZE = 30 * 1024 * 1024 // 10MB
       const isMultipartUpload = file.size > CHUNK_SIZE
-      console.log("is multipart uplaod",isMultipartUpload)
+      // console.log("is multipart uplaod",isMultipartUpload)
 
       if (isMultipartUpload) {
         // Multipart upload logic
@@ -102,16 +102,16 @@ export default function VideoUploadForm() {
           checksum,
           isMultipart: true
         })
-        console.log("signed url result , multipart",signedURLResult)
+        // console.log("signed url result , multipart",signedURLResult)
 
         if (signedURLResult.failure) {
           throw new Error(signedURLResult.failure)
         }
 
         const uploadId = signedURLResult.success?.uploadId
-        console.log("upload id ",uploadId)
+        // console.log("upload id ",uploadId)
         const fileName = signedURLResult.success?.fileName
-        console.log("file name in multipart",fileName)
+        // console.log("file name in multipart",fileName)
 
         if (!uploadId || !fileName) {
           throw new Error("Invalid upload parameters")
@@ -119,11 +119,11 @@ export default function VideoUploadForm() {
 
         // Calculate number of parts
         const totalParts = Math.ceil(file.size / CHUNK_SIZE)
-        console.log("total parts",totalParts)
+        // console.log("total parts",totalParts)
         const uploadPromises: Promise<void>[] = []
-        console.log("uploadPromises",uploadPromises)
+        // console.log("uploadPromises",uploadPromises)
         const uploadedParts: UploadedPart[] = []
-        console.log("uploadParts",uploadedParts)
+        // console.log("uploadParts",uploadedParts)
 
         for (let partNumber = 1; partNumber <= totalParts; partNumber++) {
           const start = (partNumber - 1) * CHUNK_SIZE
@@ -139,7 +139,7 @@ export default function VideoUploadForm() {
             partNumber,
             fileName
           })
-          console.log("presigned url result",presignedURLResult)
+          // console.log("presigned url result",presignedURLResult)
 
           if (presignedURLResult.failure) {
             throw new Error(presignedURLResult.failure)
@@ -178,7 +178,7 @@ export default function VideoUploadForm() {
           uploadId,
           parts: uploadedParts
         })
-        console.log("complete result",completeResult)
+        // console.log("complete result",completeResult)
 
         if (completeResult.failure) {
           throw new Error(completeResult.failure)

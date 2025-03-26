@@ -9,7 +9,7 @@ import ProjectAnalysis from "@/components/resume-analysis/ProjectAnalysis";
 import ExperienceAnalysis from "@/components/resume-analysis/ExperienceAnalysis";
 import SkillAnalysis from "@/components/resume-analysis/SkillAnalysis";
 import GeneralATS from "@/components/resume-analysis/GeneralATS";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { currentUser } from "@/lib/auth";
 import NavBar from "../_components/navbar";
 import { useCurrentUser } from "@/hooks/use-current-user";
@@ -19,7 +19,12 @@ const PDFExtractor = () => {
   const [analysis, setAnalysis] = useState(null);
   const [parsedData, setParsedData] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
-
+  const [sup,wassup]=useState(false)
+  const router = useRouter();
+  console.log("analysis",analysis)
+  console.log("parsedData",parsedData)
+  // console.log("selectedJob",selectedJob)
+  // console.log("pdfUrl",pdfUrl)
 const user= useCurrentUser()
 
 
@@ -27,23 +32,63 @@ const user= useCurrentUser()
     return redirect("/sign-up");
   }
 
+  const handleUploadAgain = () => {
+    setPdfUrl("");
+    setAnalysis(null);
+    setParsedData(null);
+    wassup(false);
+    router.push("/resume-analysis");
+  };
+
+  const handleGoHome = () => {
+    wassup(false);
+    router.push("/");
+  };
 
   return (
     <>
       {/* <NavBar /> */}
 
       <div>
-        {!pdfUrl && (
+        {/* comment out !analysis to test the loading state */}
+        {!pdfUrl &&  (
           <ResumeUpload
             selectedJob={selectedJob}
             setSelectedJob={setSelectedJob}
             setParsedData={setParsedData}
             setPdfUrl={setPdfUrl}
             setAnalysis={setAnalysis}
+            wassup={wassup}
           />
         )}
-
-        {pdfUrl && (
+        { sup && (
+          <Card className="max-w-md mx-auto mt-8 text-center">
+            <CardHeader>
+              <CardTitle>Invalid File</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-500 mb-4">
+                Please upload a valid PDF file to continue.
+              </p>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={handleGoHome}
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                >
+                  Home
+                </button>
+                <button
+                  onClick={handleUploadAgain}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                >
+                  Upload Resume
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {/* comment out analysis to test the loading state */}
+        {pdfUrl && !sup &&  (
           <div className="grid grid-cols-5 gap-4 w-full">
             <div className="col-span-2 sticky top-4 h-[calc(100vh-2rem)]">
               <div className="w-full h-full py-4 ml-4">
@@ -56,7 +101,7 @@ const user= useCurrentUser()
               </div>
             </div>
 
-            {!analysis && (
+            {!analysis && !sup && pdfUrl && (
               <div className="w-[93%] mx-auto m-4 col-span-3">
                 <ResumeAnalysisLoading />
               </div>

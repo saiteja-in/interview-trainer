@@ -115,6 +115,7 @@ const ResumeUpload: React.FC = ({
   setPdfUrl,
   setAnalysis,
   setParsedData,
+  wassup,
   selectedJob,
   setSelectedJob,
 }: any) => {
@@ -122,6 +123,7 @@ const ResumeUpload: React.FC = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  //extracted text can be used to store the content in future, useful for extracting keywords,cards for the future video
   const [extractedText, setExtractedText] = useState<string>("");
   const [customJobDescription, setCustomJobDescription] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
@@ -132,6 +134,8 @@ const ResumeUpload: React.FC = ({
 
   // Combined job descriptions (predefined + custom)
   const allJobs = [...jobDescriptions, ...customJobs];
+  // console.log("allJobs",allJobs)
+  // console.log("selectedJob",selectedJob)
 
   const handleCustomJobSubmit = () => {
     if (!customJobDescription.trim()) {
@@ -198,19 +202,32 @@ const ResumeUpload: React.FC = ({
       toast.error("Upload a valid report.");
       return;
     }
+    console.log("text",text)
 
 
     try {
       setLoading(true);
+      // console.log("text",text)
+      // console.log("selectedJob",selectedJob)
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/extract-resume-data`,
         { extractedText: text, jobDescription: selectedJob }
       );
+      if (!response.data) {
+        throw new Error("No data received from server");
+      }
+      // console.log("response",response.data)
+      console.log("response.data.analysis",response.data.analysis)
+      console.log("response.data.parsedResume",response.data.parsedResume)
       setParsedData(response.data.parsedResume);
-      setAnalysis(response.data.analysis);
+      setAnalysis(response.data.analysis);  
     } catch (error) {
-      router.push("/resume-analysis");
+      setLoading(false);
+      wassup(true)
+      console.error("Error in getStructured:", error);
+      console.log("is this really coming here",error)
       toast.error("Model Overloaded. Please Try again.");
+      router.push("/resume-analysis");
     } finally {
       setLoading(false);
     }
@@ -234,6 +251,7 @@ const ResumeUpload: React.FC = ({
 
       images.push(canvas.toDataURL("image/png"));
     }
+    console.log("images",images)
     return images;
   };
 
@@ -265,7 +283,7 @@ const ResumeUpload: React.FC = ({
       const formData = new FormData();
       formData.append('file', file);
       formData.append('fileName', fileName);
-      
+      // console.log("formData",formData)
       // Send to server-side API that handles S3 upload
       const response = await fetch('/api/upload-resume', {
         method: 'POST',
@@ -278,7 +296,8 @@ const ResumeUpload: React.FC = ({
       }
   
       const data = await response.json();
-      console.log("resume data", data);
+      // console.log("resume data", data.fileUrl);
+      // console.log("resume data", data.fileName);
       
       // Set PDF URL from the response
       setPdfUrl(data.fileUrl);
@@ -289,6 +308,7 @@ const ResumeUpload: React.FC = ({
   };
 
   const handleFile = async (file: File): Promise<void> => {
+    // console.log("file",file)
     if (!file) return;
 
     setIsLoading(true);
@@ -301,6 +321,10 @@ const ResumeUpload: React.FC = ({
       const pdf = await pdfjsLib.getDocument({ data: fileData }).promise;
       const images = await convertToImage(pdf);
       const text = await convertToText(images);
+      // console.log("fileData",fileData)
+      // console.log("pdf",pdf)
+      // console.log("images",images)
+      // console.log("text",text)
 
       setExtractedText(text);
       await uploadImage(file);
@@ -426,7 +450,8 @@ const ResumeUpload: React.FC = ({
               </DialogContent>
             </Dialog>
           </div>
-        </div>
+        </div>  
+        {/* <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA5YA…QBIJAEAgCQSAIBIG1EPg/4jFV8IckCgYAAAAASUVORK5CYII=" /> */}
 
         {selectedJob && (
           <div

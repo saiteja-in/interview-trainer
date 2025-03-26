@@ -138,9 +138,9 @@ export async function completeMultipartUpload({
   parts: Array<{ETag: string, PartNumber: number}>
 }) {
   const user = await currentUser();
-  console.log("filename",fileName)
-  console.log("uploadId",uploadId)
-  console.log("parts",parts)
+  // console.log("filename",fileName)
+  // console.log("uploadId",uploadId)
+  // console.log("parts",parts)
 
   if (!user) {
     return { failure: "Not authenticated" };
@@ -163,7 +163,7 @@ export async function completeMultipartUpload({
     });
 
     const result = await s3.send(completeMultipartUploadCommand);
-    console.log("result",result)
+    // console.log("result",result)
 
     // Add video URL to the database
     const videoUrl = `https://${process.env.AWS_BUCKET_NAME1}.s3.${process.env.AWS_BUCKET_REGION1}.amazonaws.com/${fileName}`;
