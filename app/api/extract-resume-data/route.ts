@@ -396,7 +396,8 @@ function calculateOverallScore({
 export async function POST(req: NextRequest) {
   try {
     const { extractedText, jobDescription } = await req.json();
-
+    // console.log("extractedText",extractedText)
+    // console.log("jobDescription",jobDescription)
     if (!extractedText || !jobDescription) {
       return NextResponse.json(
         { error: "Missing required data (resume or job description)" },
@@ -405,16 +406,20 @@ export async function POST(req: NextRequest) {
     }
 
     const extractDataPrompt = PromptTemplate.fromTemplate(extractDataTemplate);
+    // console.log("extractDataPrompt",extractDataPrompt)
     const extractChain = extractDataPrompt.pipe(llm);
+    // console.log("extractChain",extractChain)
     const result = await extractChain.invoke({ resume: extractedText });
+    // console.log("result",result)
 
     const cleanResponse = result.lc_kwargs.content
       .trim()
       .replace(/^```json\s*/, "")
       .replace(/```$/, "");
+    // console.log("cleanResponse",cleanResponse)
 
     const parsedData = JSON.parse(cleanResponse);
-
+    // console.log("parsedData",parsedData)
     const skillsEducationPrompt = PromptTemplate.fromTemplate(
       skillsEducationTemplate
     );
@@ -428,6 +433,7 @@ export async function POST(req: NextRequest) {
       skills: JSON.stringify(parsedData.skills || []),
       education: JSON.stringify(parsedData.education || []),
     });
+    console.log("skillsEducationAnalysis",skillsEducationAnalysis)
 
     const projectsExperiencePrompt = PromptTemplate.fromTemplate(
       projectsExperienceTemplate
@@ -444,7 +450,7 @@ export async function POST(req: NextRequest) {
       projects: JSON.stringify(parsedData.projects || []),
       experience: JSON.stringify(parsedData.experience || []),
     });
-
+    console.log("projectsExperienceAnalysis",projectsExperienceAnalysis)
     const atsPrompt = PromptTemplate.fromTemplate(atsTemplate);
     const atsLlm = llm.withStructuredOutput(atsAnalysisStructure);
     const atsChain = atsPrompt.pipe(atsLlm);
