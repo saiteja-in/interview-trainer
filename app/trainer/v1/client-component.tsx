@@ -286,7 +286,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center space-y-4 animate-pulse">
-          <div className="mx-auto h-12 w-12 bg-gray-800 rounded-full" />
+          <div className="mx-auto h-12 w-12 bg-black rounded-full" />
           <p className="text-gray-400 text-lg">Initializing interview session...</p>
         </div>
       </div>
@@ -296,7 +296,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black p-4">
-        <Card className="w-full max-w-md p-8 bg-gray-900 border-gray-800 shadow-2xl">
+        <Card className="w-full max-w-md p-8 bg-black border-gray-800 shadow-2xl">
           <Alert variant="destructive" className="border-none bg-red-900/30">
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 mt-0.5 text-red-400" />
@@ -308,7 +308,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
           </Alert>
           <Button 
             onClick={() => window.location.reload()}
-            className="w-full mt-6 py-4 bg-gray-800 hover:bg-gray-700 text-gray-100 rounded-xl transition-colors"
+            className="w-full mt-6 py-4 bg-black hover:bg-gray-700 text-gray-100 rounded-xl transition-colors"
           >
             Refresh Session
           </Button>
@@ -321,7 +321,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center space-y-6 max-w-md p-8">
-          <div className="mx-auto h-16 w-16 bg-gray-900 rounded-full flex items-center justify-center">
+          <div className="mx-auto h-16 w-16 bg-black rounded-full flex items-center justify-center">
             <VideoOff className="h-8 w-8 text-gray-400" />
           </div>
           <h2 className="text-2xl font-semibold text-gray-100">No questions available</h2>
@@ -341,7 +341,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
     <div className="min-h-screen bg-black text-gray-100 p-6">
       {!testStarted ? (
         <div className="flex flex-col items-center justify-center min-h-screen space-y-10">
-          <div className="w-full max-w-4xl aspect-video rounded-2xl overflow-hidden shadow-xl bg-gray-900 relative">
+          <div className="w-full max-w-4xl aspect-video rounded-2xl overflow-hidden shadow-xl bg-black relative">
             <Webcam
               ref={webcamRef}
               audio={false}
@@ -355,7 +355,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
               onClick={toggleVideo}
               variant="ghost"
               size="sm"
-              className="absolute top-4 right-4 backdrop-blur-sm bg-gray-900/50 text-gray-100 hover:bg-gray-800/50"
+              className="absolute top-4 right-4 backdrop-blur-sm bg-black/50 text-gray-100 hover:bg-black/50"
             >
               {isVideoMuted ? (
                 <VideoOff className="h-5 w-5" />
@@ -382,7 +382,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
         </div>
       ) : (
         <div className="grid lg:grid-cols-2 gap-8 h-[calc(100vh-3rem)]">
-          <div className="relative h-full rounded-2xl overflow-hidden shadow-xl bg-gray-900">
+          <div className="relative h-full rounded-2xl overflow-hidden shadow-xl bg-black">
             <Webcam
               ref={webcamRef}
               audio={false}
@@ -397,7 +397,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
                   onClick={toggleVideo}
                   variant="ghost"
                   size="sm"
-                  className="backdrop-blur-sm bg-gray-900/50 text-gray-100 hover:bg-gray-800/50"
+                  className="backdrop-blur-sm bg-black/50 text-gray-100 hover:bg-black/50"
                 >
                   {isVideoMuted ? (
                     <VideoOff className="h-5 w-5" />
@@ -405,7 +405,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
                     <Video className="h-5 w-5" />
                   )}
                 </Button>
-                <div className="text-sm font-medium text-gray-300 bg-gray-800/50 px-3 py-1 rounded-lg">
+                <div className="text-sm font-medium text-gray-300 bg-black/50 px-3 py-1 rounded-lg">
                   {formatTime(elapsedTime)}
                 </div>
               </div>
@@ -418,7 +418,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
             </div>
           </div>
 
-          <div className="bg-gray-900 rounded-2xl shadow-xl p-6 flex flex-col">
+          <div className="bg-black rounded-2xl shadow-xl p-6 flex flex-col">
             <div className="border-b border-gray-800 pb-4 mb-6">
               <h2 className="text-2xl font-bold text-gray-100">
                 {selectedRole.replace(/_/g, " ")} Questions
@@ -428,7 +428,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
               </div>
             </div>
 
-            <Card className="flex-1 flex items-center justify-center p-8 bg-gray-800/30 border-gray-800 rounded-xl mb-6">
+            <Card className="flex-1 flex items-center justify-center p-8 bg-black/30 border-gray-800 rounded-xl mb-6">
               <p className="text-2xl text-gray-100 text-center leading-relaxed">
                 {questions[currentQuestionIndex]}
               </p>
@@ -470,7 +470,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
       )}
 
       {isUploading && (
-        <div className="fixed bottom-4 right-4 bg-gray-900/90 px-4 py-3 rounded-lg backdrop-blur-sm shadow-lg">
+        <div className="fixed bottom-4 right-4 bg-black/90 px-4 py-3 rounded-lg backdrop-blur-sm shadow-lg">
           <div className="flex items-center gap-3">
             {uploadProgress === 100 ? (
               <Loader2 className="h-5 w-5 text-green-400 animate-spin" />

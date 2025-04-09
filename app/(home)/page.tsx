@@ -18,6 +18,7 @@ const Home = async () => {
       {/* <main className="flex justify-center items-center text-center min-h-screen">
         Home Page
       </main> */}
+         <NavBar />
       <MynaHero user={user} />
     </div>
   );

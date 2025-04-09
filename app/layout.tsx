@@ -45,9 +45,9 @@ export default async function RootLayout({
           >
             {/* <NavBar /> */}
             <NextTopLoader/>
-            <NavBar />
+         
             <main>{children}</main>
-            <Footer />
+            {/* <Footer /> */}
           </ThemeProvider>
         </body>
       </html>

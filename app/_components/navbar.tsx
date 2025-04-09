@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ModeToggle } from "./ModeToggle";
 import { ResumeIcon } from "@radix-ui/react-icons";
-import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useRouter } from "nextjs-toploader/app";
 
 const NavBar = () => {
     const user = useCurrentUser();

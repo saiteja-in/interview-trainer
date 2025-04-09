@@ -123,7 +123,6 @@ const ResumeUpload: React.FC = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  //extracted text can be used to store the content in future, useful for extracting keywords,cards for the future video
   const [extractedText, setExtractedText] = useState<string>("");
   const [customJobDescription, setCustomJobDescription] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
@@ -134,8 +133,6 @@ const ResumeUpload: React.FC = ({
 
   // Combined job descriptions (predefined + custom)
   const allJobs = [...jobDescriptions, ...customJobs];
-  // console.log("allJobs",allJobs)
-  // console.log("selectedJob",selectedJob)
 
   const handleCustomJobSubmit = () => {
     if (!customJobDescription.trim()) {
@@ -144,11 +141,11 @@ const ResumeUpload: React.FC = ({
     }
 
     const newCustomJob: JobRequirement = {
-      id: Date.now(), // Using timestamp as unique ID
+      id: Date.now(),
       title: "Custom Position",
       company: "Custom Company",
       description: customJobDescription,
-      requirements: [], // Empty requirements for custom jobs
+      requirements: [],
       isCustom: true,
     };
 
@@ -202,13 +199,9 @@ const ResumeUpload: React.FC = ({
       toast.error("Upload a valid report.");
       return;
     }
-    console.log("text",text)
-
 
     try {
       setLoading(true);
-      // console.log("text",text)
-      // console.log("selectedJob",selectedJob)
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/extract-resume-data`,
         { extractedText: text, jobDescription: selectedJob }
@@ -216,16 +209,12 @@ const ResumeUpload: React.FC = ({
       if (!response.data) {
         throw new Error("No data received from server");
       }
-      // console.log("response",response.data)
-      console.log("response.data.analysis",response.data.analysis)
-      console.log("response.data.parsedResume",response.data.parsedResume)
       setParsedData(response.data.parsedResume);
-      setAnalysis(response.data.analysis);  
+      setAnalysis(response.data.analysis);
     } catch (error) {
       setLoading(false);
-      wassup(true)
+      wassup(true);
       console.error("Error in getStructured:", error);
-      console.log("is this really coming here",error)
       toast.error("Model Overloaded. Please Try again.");
       router.push("/resume-analysis");
     } finally {
@@ -251,7 +240,6 @@ const ResumeUpload: React.FC = ({
 
       images.push(canvas.toDataURL("image/png"));
     }
-    console.log("images",images)
     return images;
   };
 
@@ -275,16 +263,14 @@ const ResumeUpload: React.FC = ({
 
   const uploadImage = async (file: File): Promise<void> => {
     try {
-      // Generate a unique filename
       const fileExtension = file.name.split('.').pop() || 'pdf';
-      const fileName = `resumes/${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExtension}`;
+      const fileName = `resumes/${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2, 15)}.${fileExtension}`;
       
-      // Create form data for server
       const formData = new FormData();
       formData.append('file', file);
       formData.append('fileName', fileName);
-      // console.log("formData",formData)
-      // Send to server-side API that handles S3 upload
       const response = await fetch('/api/upload-resume', {
         method: 'POST',
         body: formData,
@@ -296,10 +282,6 @@ const ResumeUpload: React.FC = ({
       }
   
       const data = await response.json();
-      // console.log("resume data", data.fileUrl);
-      // console.log("resume data", data.fileName);
-      
-      // Set PDF URL from the response
       setPdfUrl(data.fileUrl);
     } catch (error) {
       console.error("Error uploading resume:", error);
@@ -308,7 +290,6 @@ const ResumeUpload: React.FC = ({
   };
 
   const handleFile = async (file: File): Promise<void> => {
-    // console.log("file",file)
     if (!file) return;
 
     setIsLoading(true);
@@ -321,18 +302,15 @@ const ResumeUpload: React.FC = ({
       const pdf = await pdfjsLib.getDocument({ data: fileData }).promise;
       const images = await convertToImage(pdf);
       const text = await convertToText(images);
-      // console.log("fileData",fileData)
-      // console.log("pdf",pdf)
-      // console.log("images",images)
-      // console.log("text",text)
-
       setExtractedText(text);
       await uploadImage(file);
       await getStructured(text);
     } catch (error) {
       toast.error("Error processing PDF");
       setError(
-        `Error processing PDF: ${error instanceof Error ? error.message : "Unknown error"}`
+        `Error processing PDF: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
       );
     } finally {
       setIsLoading(false);
@@ -340,24 +318,28 @@ const ResumeUpload: React.FC = ({
   };
 
   return (
-    <Card className="max-w-[80%] bg-transparent mx-auto border-none shadow-none">
+    <Card className="max-w-[80%] mx-auto border-none shadow-none bg-transparent dark:bg-transparent">
       <CardHeader>
         <CardTitle className="mt-12 mb-4">
-          <h1 className="text-4xl text-center md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/60 text-transparent bg-clip-text">
+          <h1 className="text-4xl md:text-5xl font-bold text-center bg-gradient-to-r from-primary to-primary/60 text-transparent bg-clip-text">
             Resume Analysis
           </h1>
-          <p className="text-gray-600 text-lg text-center font-normal mt-4">
-            Select a job description and upload your resume for targeted
-            analysis
+          <p className="text-gray-600 dark:text-gray-400 text-lg text-center font-normal mt-4">
+            Select a job description and upload your resume for targeted analysis
           </p>
         </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-8">
         <div className="relative">
-          <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
-          isLoading || loading ? "opacity-30 pointer-events-none" : "opacity-100"
-          )}>
+          <div
+            className={cn(
+              "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
+              isLoading || loading
+                ? "opacity-30 pointer-events-none"
+                : "opacity-100"
+            )}
+          >
             {allJobs.map((job) => (
               <JobCard
                 key={job.id}
@@ -370,14 +352,14 @@ const ResumeUpload: React.FC = ({
             {/* Add Custom Job Card */}
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Card className="flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors p-6">
+                <Card className="flex flex-col items-center justify-center cursor-pointer hover:border-primary dark:hover:border-primary transition-colors p-6 bg-white dark:bg-black">
                   <Plus className="h-12 w-12 text-gray-400" />
-                  <p className="mt-4 text-gray-600 font-medium">
+                  <p className="mt-4 text-gray-600 dark:text-gray-300 font-medium">
                     Add Custom Job
                   </p>
                 </Card>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="sm:max-w-md bg-white dark:bg-black">
                 <DialogHeader>
                   <DialogTitle>Add Custom Job Description</DialogTitle>
                   <DialogDescription>
@@ -389,7 +371,7 @@ const ResumeUpload: React.FC = ({
                     placeholder="Paste the job description here..."
                     value={customJobDescription}
                     onChange={(e) => setCustomJobDescription(e.target.value)}
-                    className="min-h-[200px]"
+                    className="min-h-[200px] bg-gray-50 dark:bg-black text-gray-700 dark:text-gray-300"
                   />
                   <DialogFooter>
                     <Button onClick={handleCustomJobSubmit} className="w-full">
@@ -402,20 +384,21 @@ const ResumeUpload: React.FC = ({
 
             {/* View Job Description Dialog */}
             <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-              <DialogContent className="sm:max-w-lg  max-h-[80vh] overflow-y-auto">
+              <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto bg-white dark:bg-black">
                 <DialogHeader>
-                  <DialogTitle>{viewingJob?.title}</DialogTitle>
-                  <DialogDescription>
+                  <DialogTitle>
+                    {viewingJob?.title}
                     {viewingJob?.isCustom && " (Custom Job Description)"}
-                  </DialogDescription>
+                  </DialogTitle>
+                  <DialogDescription></DialogDescription>
                 </DialogHeader>
                 <div className="mt-4 space-y-4">
                   <div>
                     <h3 className="text-sm font-medium mb-2">
                       Job Description
                     </h3>
-                    <div className="bg-gray-50 p-4 rounded-md">
-                      <p className="text-sm whitespace-pre-line">
+                    <div className="bg-gray-50 dark:bg-black p-4 rounded-md">
+                      <p className="text-sm whitespace-pre-line text-gray-700 dark:text-gray-300">
                         {viewingJob?.description}
                       </p>
                     </div>
@@ -427,8 +410,8 @@ const ResumeUpload: React.FC = ({
                         <h3 className="text-sm font-medium mb-2">
                           Requirements
                         </h3>
-                        <div className="bg-gray-50 p-4 rounded-md">
-                          <ul className="list-disc pl-5 space-y-1">
+                        <div className="bg-gray-50 dark:bg-black p-4 rounded-md">
+                          <ul className="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300">
                             {viewingJob.requirements.map((req, index) => (
                               <li key={index} className="text-sm">
                                 {req}
@@ -450,14 +433,12 @@ const ResumeUpload: React.FC = ({
               </DialogContent>
             </Dialog>
           </div>
-        </div>  
-        {/* <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA5YA…QBIJAEAgCQSAIBIG1EPg/4jFV8IckCgYAAAAASUVORK5CYII=" /> */}
+        </div>
 
         {selectedJob && (
           <div
             className={`
-              border-2 border-dashed rounded-lg p-8 text-center
-              transition-all duration-200
+              border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200
               ${isDragging ? "border-primary bg-primary/5 scale-[1.02]" : "border-primary/60"}
             `}
             onDrop={handleDrop}
@@ -467,14 +448,18 @@ const ResumeUpload: React.FC = ({
             {isLoading || loading ? (
               <div className="flex flex-col items-center space-y-4">
                 <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                <span className="text-lg">Analyzing your resume...</span>
+                <span className="text-lg text-gray-800 dark:text-gray-100">
+                  Analyzing your resume...
+                </span>
               </div>
             ) : (
               <div className="flex flex-col items-center space-y-4">
                 <Upload
-                  className={`w-12 h-12 ${isDragging ? "text-primary" : "text-gray-400"} transition-colors duration-200`}
+                  className={`w-12 h-12 ${
+                    isDragging ? "text-primary" : "text-gray-400"
+                  } transition-colors duration-200`}
                 />
-                <div className="text-lg">
+                <div className="text-lg text-gray-800 dark:text-gray-100">
                   Drag and drop your resume PDF here, or
                   <label className="ml-1 text-primary cursor-pointer hover:text-primary/80">
                     browse
@@ -489,7 +474,9 @@ const ResumeUpload: React.FC = ({
                     />
                   </label>
                 </div>
-                <p className="text-sm text-gray-500">Supports PDF files only</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Supports PDF files only
+                </p>
               </div>
             )}
           </div>
@@ -512,12 +499,12 @@ const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect }) => {
     <Card
       className={`transition-all duration-200 hover:shadow-lg ${
         isSelected ? "border-primary ring-2 ring-primary" : ""
-      }`}
+      } bg-white dark:bg-black`}
     >
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold">
+            <CardTitle className="text-lg font-semibold text-gray-800 dark:text-gray-100">
               {job.title}
               {job.isCustom && " (Custom)"}
             </CardTitle>
@@ -529,7 +516,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect }) => {
       </CardHeader>
       <CardContent className="pt-0">
         <div className="space-y-3">
-          <p className="text-sm text-gray-600 line-clamp-3">
+          <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
             {job.description}
           </p>
 
@@ -545,20 +532,20 @@ const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect }) => {
                   View Details
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+              <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto bg-white dark:bg-black">
                 <DialogHeader>
-                  <DialogTitle>
+                  <DialogTitle className="text-gray-800 dark:text-gray-100">
                     {job.title}
                     {job.isCustom && " (Custom)"}
                   </DialogTitle>
                 </DialogHeader>
                 <div className="mt-4 space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium mb-2">
+                    <h3 className="text-sm font-medium mb-2 text-gray-800 dark:text-gray-100">
                       Job Description
                     </h3>
-                    <div className="bg-gray-50 p-4 rounded-md">
-                      <p className="text-sm whitespace-pre-line">
+                    <div className="bg-gray-50 dark:bg-black p-4 rounded-md">
+                      <p className="text-sm whitespace-pre-line text-gray-700 dark:text-gray-300">
                         {job.description}
                       </p>
                     </div>
@@ -566,9 +553,11 @@ const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect }) => {
 
                   {job.requirements && job.requirements.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-medium mb-2">Requirements</h3>
-                      <div className="bg-gray-50 p-4 rounded-md">
-                        <ul className="list-disc pl-5 space-y-1">
+                      <h3 className="text-sm font-medium mb-2 text-gray-800 dark:text-gray-100">
+                        Requirements
+                      </h3>
+                      <div className="bg-gray-50 dark:bg-black p-4 rounded-md">
+                        <ul className="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300">
                           {job.requirements.map((req, index) => (
                             <li key={index} className="text-sm">
                               {req}

@@ -234,7 +234,7 @@ STRICT JSON OUTPUT REQUIREMENTS:
 8. While parsing projects and experience, project titles and job roles/experience role should be named as title only and descriptions to be named description only.
 
 *** RESUME DATA STARTS ***
-{resume}
+{teja}
 *** RESUME DATA ENDS ***
 `;
 
@@ -409,7 +409,7 @@ export async function POST(req: NextRequest) {
     // console.log("extractDataPrompt",extractDataPrompt)
     const extractChain = extractDataPrompt.pipe(llm);
     // console.log("extractChain",extractChain)
-    const result = await extractChain.invoke({ resume: extractedText });
+    const result = await extractChain.invoke({ teja: extractedText });
     // console.log("result",result)
 
     const cleanResponse = result.lc_kwargs.content
@@ -433,7 +433,7 @@ export async function POST(req: NextRequest) {
       skills: JSON.stringify(parsedData.skills || []),
       education: JSON.stringify(parsedData.education || []),
     });
-    console.log("skillsEducationAnalysis",skillsEducationAnalysis)
+    // console.log("skillsEducationAnalysis",skillsEducationAnalysis)
 
     const projectsExperiencePrompt = PromptTemplate.fromTemplate(
       projectsExperienceTemplate
@@ -450,7 +450,7 @@ export async function POST(req: NextRequest) {
       projects: JSON.stringify(parsedData.projects || []),
       experience: JSON.stringify(parsedData.experience || []),
     });
-    console.log("projectsExperienceAnalysis",projectsExperienceAnalysis)
+    // console.log("projectsExperienceAnalysis",projectsExperienceAnalysis)
     const atsPrompt = PromptTemplate.fromTemplate(atsTemplate);
     const atsLlm = llm.withStructuredOutput(atsAnalysisStructure);
     const atsChain = atsPrompt.pipe(atsLlm);

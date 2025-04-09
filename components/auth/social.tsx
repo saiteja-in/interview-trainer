@@ -2,40 +2,73 @@
 
 import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+import { FaGithub, FaSpinner } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
-
+import { useTheme } from "next-themes";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 export const Social = () => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
+  const { theme } = useTheme();
+  const [signingIn, setSigningIn] = React.useState<"google" | "github" | null>(null);
 
-  const onClick = (provider: "google" | "github") => {
-    signIn(provider, {
-      callbackUrl: DEFAULT_LOGIN_REDIRECT,
+  const onClick = async (provider: "google" | "github") => {
+    setSigningIn(provider);
+    await signIn(provider, {
+      callbackUrl: callbackUrl || DEFAULT_LOGIN_REDIRECT,
     });
-  }
+  };
 
   return (
-    <div className="flex items-center w-full gap-x-2">
+    <div className="flex flex-col sm:flex-row gap-4 justify-between w-full">
       <Button
-        size="lg"
-        className="w-full"
+        type="button"
         variant="outline"
         onClick={() => onClick("google")}
+        className="w-72 font-medium border-2 text-neutral-950 dark:text-neutral-50"
+        disabled={signingIn !== null}
       >
-        <FcGoogle className="h-5 w-5" />
+        <div className="flex flex-row justify-center items-center gap-2 w-full">
+          {signingIn === "google" ? (
+            <>
+              <FaSpinner className="h-4 w-4 animate-spin" />
+              <span className="whitespace-nowrap">Redirecting...</span>
+            </>
+          ) : (
+            <>
+              <FcGoogle className="h-4 w-4" />
+              <span className="whitespace-nowrap">Login With Google</span>
+            </>
+          )}
+        </div>
       </Button>
+
       <Button
-        size="lg"
-        className="w-full"
+        type="button"
         variant="outline"
         onClick={() => onClick("github")}
+        className="w-72 font-medium border-2 text-neutral-950 dark:text-neutral-50"
+        disabled={signingIn !== null}
       >
-        <FaGithub className="h-5 w-5" />
+        <div className="flex flex-row justify-center items-center gap-2 w-full">
+          {signingIn === "github" ? (
+            <>
+              <FaSpinner className="h-4 w-4 animate-spin" />
+              <span className="whitespace-nowrap">Redirecting...</span>
+            </>
+          ) : (
+            <>
+              <FaGithub className="h-4 w-4" />
+              <span className="whitespace-nowrap">Login With Github</span>
+            </>
+          )}
+        </div>
       </Button>
     </div>
   );
 };
+
+export default Social;
