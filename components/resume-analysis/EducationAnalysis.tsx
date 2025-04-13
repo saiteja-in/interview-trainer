@@ -20,7 +20,7 @@ const EducationAnalysis = ({ analysis }: any) => {
       value="education"
       className="border rounded-lg overflow-hidden border-gray-200 dark:border-gray-700"
     >
-      <AccordionTrigger className="bg-gray-50 dark:bg-gray-700 p-4 cursor-pointer hover:no-underline">
+      <AccordionTrigger className="bg-muted p-4 cursor-pointer hover:no-underline">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
             <GraduationCap className="w-5 h-5 text-gray-600 dark:text-gray-300" />
@@ -53,7 +53,7 @@ const EducationAnalysis = ({ analysis }: any) => {
       <AccordionContent className="p-4 bg-white dark:bg-black">
         <div className="space-y-6">
           {/* Overall Assessment */}
-          <div className="bg-gray-50 dark:bg-black p-4 rounded-lg">
+          <div className="bg-muted p-4 rounded-lg">
             <h4 className="font-medium text-lg text-gray-800 dark:text-gray-100 mb-3">
               Analysis Summary
             </h4>
@@ -91,7 +91,7 @@ const EducationAnalysis = ({ analysis }: any) => {
                 key={index}
                 className="border rounded-lg bg-white dark:bg-black hover:shadow-md transition-all border-gray-200 dark:border-gray-700"
               >
-                <div className="bg-gray-50 dark:bg-gray-700 p-4 border-b border-gray-200 dark:border-gray-600">
+                <div className="bg-muted p-4 border-b border-gray-200 dark:border-gray-600">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <GraduationCap className="w-5 h-5 text-gray-600 dark:text-gray-300" />

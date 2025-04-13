@@ -1,5 +1,3 @@
-// All components updated to support both light and dark modes
-
 "use client";
 import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -39,7 +37,7 @@ const PDFExtractor = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-black min-h-screen py-4 px-2">
+    <div className="bg-background text-gray-800 dark:text-gray-100 min-h-screen py-4 px-2">
       {!pdfUrl && (
         <ResumeUpload
           selectedJob={selectedJob}
@@ -54,22 +52,24 @@ const PDFExtractor = () => {
       {sup && (
         <Card className="max-w-md mx-auto mt-8 text-center bg-white dark:bg-black">
           <CardHeader>
-            <CardTitle className="text-gray-800 dark:text-white">Invalid File</CardTitle>
+            <CardTitle className="text-gray-800 dark:text-gray-100">
+              Invalid File
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               Please upload a valid PDF file to continue.
             </p>
             <div className="flex gap-4 justify-center">
               <button
                 onClick={handleGoHome}
-                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors"
               >
                 Home
               </button>
               <button
                 onClick={handleUploadAgain}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
               >
                 Upload Resume
               </button>
@@ -85,7 +85,7 @@ const PDFExtractor = () => {
               <embed
                 src={`${pdfUrl}#toolbar=0&navpanes=0`}
                 type="application/pdf"
-                className="w-full h-full rounded-lg border border-gray-300 dark:border-gray-700"
+                className="w-full h-full rounded-lg border border-gray-200 dark:border-gray-700"
                 style={{ minHeight: "calc(100vh - 4rem)" }}
               />
             </div>
@@ -98,38 +98,38 @@ const PDFExtractor = () => {
           )}
 
           {analysis && (
-            <Card className="w-[93%] mx-auto m-4 col-span-3 bg-white dark:bg-black">
+            <Card className="w-[93%] mx-auto m-4 col-span-3 bg-background">
               <CardHeader className="flex flex-row items-start justify-between gap-6 py-6">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <CardTitle className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                       Analysis Results
                     </CardTitle>
                     <div className="relative group">
-                      <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center cursor-help">
-                        <span className="text-xs font-bold text-gray-600 dark:text-gray-300">i</span>
+                      <div className="w-5 h-5 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center cursor-help">
+                        <span className="text-xs font-bold text-gray-600 dark:text-gray-400">
+                          i
+                        </span>
                       </div>
-                      <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-black text-white text-xs rounded shadow-lg z-[999999]">
-                        Resume analysis results may not be 100% reliable. This
-                        is an experimental project and should be used as a
-                        general guideline only.
+                      <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-white dark:bg-black text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg z-[999999]">
+                        Resume analysis results may not be 100% reliable. This is an experimental project and should be used as a general guideline only.
                       </div>
                     </div>
                   </div>
                   <div className="space-y-2 mt-3">
-                    <p className="text-gray-700 dark:text-gray-300">
+                    <p className="text-gray-600 dark:text-gray-400">
                       {analysis.sections.ats.overallReview}
                     </p>
                   </div>
                 </div>
 
                 <div className="relative flex-shrink-0">
-                  <div className="w-32 h-32 rounded-full border-8 border-red-400 flex items-center justify-center bg-white dark:bg-black">
+                  <div className="w-32 h-32 rounded-full border-8 border-red-400 flex items-center justify-center bg-background">
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
+                      <div className="text-3xl font-bold text-primary">
                         {analysis.overall.score}
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                         Overall Score
                       </div>
                     </div>

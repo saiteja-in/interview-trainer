@@ -56,7 +56,7 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
 
   return (
     <AccordionItem value="experience" className="border rounded-lg overflow-hidden border-gray-200 dark:border-gray-700">
-      <AccordionTrigger className="bg-gray-50 dark:bg-gray-700 p-4 cursor-pointer hover:no-underline">
+      <AccordionTrigger className="bg-muted p-4 cursor-pointer hover:no-underline">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
             <Briefcase className="w-5 h-5 text-gray-600 dark:text-gray-300" />
@@ -85,7 +85,7 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
       <AccordionContent className="p-4 bg-white dark:bg-black">
         <div className="space-y-6">
           {/* Overall Analysis */}
-          <div className="bg-gray-50 dark:bg-black p-4 rounded-lg">
+          <div className="bg-muted p-4 rounded-lg">
             <div className="flex justify-between items-start mb-4">
               <h4 className="font-medium text-lg text-gray-800 dark:text-gray-100">
                 Career Journey Analysis
@@ -128,7 +128,7 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
                 key={i}
                 className="border rounded-lg overflow-hidden bg-white dark:bg-black hover:shadow-md transition-all border-gray-200 dark:border-gray-700"
               >
-                <div className="bg-gray-50 dark:bg-gray-700 p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-600">
+                <div className="bg-muted p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-600">
                   <div className="flex items-center gap-3">
                     <Star className="w-5 h-5 text-yellow-500" />
                     <div>
@@ -166,24 +166,22 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
                 <div className="p-4 space-y-4">
                   {/* Magic Points */}
                   {loadingStates[i] && (
-                    <div className="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg border border-purple-100 dark:border-purple-700">
+                    <div className="bg-popover p-4 rounded-lg border border-border">
                       <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span className="text-sm">
-                          Generating descriptions...
-                        </span>
+                        <span className="text-sm">Generating descriptions...</span>
                       </div>
                     </div>
                   )}
 
                   {magicPoints[i] && magicPoints[i].length > 0 && (
-                    <div className="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg border border-purple-100 dark:border-purple-700 animate-fadeIn">
-                      <h4 className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-3">
+                    <div className="bg-popover p-4 rounded-lg border border-border  animate-fadeIn">
+                      <h4 className="text-sm font-medium text-secondary-foreground  mb-3">
                         ✨ Experience Descriptions
                       </h4>
                       <ul className="list-disc list-inside space-y-2">
                         {magicPoints[i].map((point, idx) => (
-                          <li key={idx} className="text-purple-700 dark:text-purple-300 text-sm">
+                          <li key={idx} className="text-foreground text-sm">
                             {point}
                           </li>
                         ))}
@@ -193,7 +191,7 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
 
                   {/* Component Checklist */}
                   <div>
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-100 mb-3">
+                    <h4 className="text-sm font-medium text-gray-800 dark:text-gray-100 mb-3">
                       Key Components
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
@@ -201,10 +199,7 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
                         { label: "Role", check: role.hasRole },
                         { label: "Company", check: role.hasCompanyName },
                         { label: "Duration", check: role.hasDuration },
-                        {
-                          label: "Responsibilities",
-                          check: role.hasResponsibilities,
-                        },
+                        { label: "Responsibilities", check: role.hasResponsibilities },
                         { label: "Achievements", check: role.hasAchievements },
                       ].map((item, idx) => (
                         <div
@@ -220,9 +215,7 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
                           ) : (
                             <XCircle className="w-4 h-4" />
                           )}
-                          <span className="text-sm font-medium">
-                            {item.label}
-                          </span>
+                          <span className="text-sm font-medium">{item.label}</span>
                         </div>
                       ))}
                     </div>
@@ -279,8 +272,8 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
           </div>
 
           {/* Funny Highlights */}
-          <div className="bg-gradient-to-r from-gray-50 dark:from-gray-700 to-white dark:to-gray-800 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-100 mb-3">
+          <div className="bg-muted from-gray-50 dark:from-gray-700 to-white dark:to-gray-800 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-800 dark:text-gray-100 mb-3">
               Notable Highlights
             </h4>
             <ul className="space-y-2">

@@ -222,9 +222,7 @@ const ResumeUpload: React.FC = ({
     }
   };
 
-  const convertToImage = async (
-    pdf: pdfjsLib.PDFDocumentProxy
-  ): Promise<string[]> => {
+  const convertToImage = async (pdf: pdfjsLib.PDFDocumentProxy): Promise<string[]> => {
     const images: string[] = [];
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
       const page = await pdf.getPage(pageNumber);
@@ -251,9 +249,7 @@ const ResumeUpload: React.FC = ({
     let fullText = "";
 
     for (const image of images) {
-      const {
-        data: { text },
-      } = await worker.recognize(image);
+      const { data: { text } } = await worker.recognize(image);
       fullText += text + "\n\n";
     }
 
@@ -264,9 +260,7 @@ const ResumeUpload: React.FC = ({
   const uploadImage = async (file: File): Promise<void> => {
     try {
       const fileExtension = file.name.split('.').pop() || 'pdf';
-      const fileName = `resumes/${Date.now()}-${Math.random()
-        .toString(36)
-        .substring(2, 15)}.${fileExtension}`;
+      const fileName = `resumes/${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExtension}`;
       
       const formData = new FormData();
       formData.append('file', file);
@@ -318,7 +312,7 @@ const ResumeUpload: React.FC = ({
   };
 
   return (
-    <Card className="max-w-[80%] mx-auto border-none shadow-none bg-transparent dark:bg-transparent">
+    <Card className="max-w-[80%] mx-auto border-none shadow-none bg-transparent">
       <CardHeader>
         <CardTitle className="mt-12 mb-4">
           <h1 className="text-4xl md:text-5xl font-bold text-center bg-gradient-to-r from-primary to-primary/60 text-transparent bg-clip-text">
@@ -352,7 +346,7 @@ const ResumeUpload: React.FC = ({
             {/* Add Custom Job Card */}
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Card className="flex flex-col items-center justify-center cursor-pointer hover:border-primary dark:hover:border-primary transition-colors p-6 bg-white dark:bg-black">
+                <Card className="flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors p-6 bg-white dark:bg-black">
                   <Plus className="h-12 w-12 text-gray-400" />
                   <p className="mt-4 text-gray-600 dark:text-gray-300 font-medium">
                     Add Custom Job
@@ -386,15 +380,14 @@ const ResumeUpload: React.FC = ({
             <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
               <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto bg-white dark:bg-black">
                 <DialogHeader>
-                  <DialogTitle>
+                  <DialogTitle className="text-gray-800 dark:text-gray-100">
                     {viewingJob?.title}
                     {viewingJob?.isCustom && " (Custom Job Description)"}
                   </DialogTitle>
-                  <DialogDescription></DialogDescription>
                 </DialogHeader>
                 <div className="mt-4 space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium mb-2">
+                    <h3 className="text-sm font-medium mb-2 text-gray-800 dark:text-gray-100">
                       Job Description
                     </h3>
                     <div className="bg-gray-50 dark:bg-black p-4 rounded-md">
@@ -407,7 +400,7 @@ const ResumeUpload: React.FC = ({
                   {viewingJob?.requirements &&
                     viewingJob.requirements.length > 0 && (
                       <div>
-                        <h3 className="text-sm font-medium mb-2">
+                        <h3 className="text-sm font-medium mb-2 text-gray-800 dark:text-gray-100">
                           Requirements
                         </h3>
                         <div className="bg-gray-50 dark:bg-black p-4 rounded-md">
@@ -455,9 +448,7 @@ const ResumeUpload: React.FC = ({
             ) : (
               <div className="flex flex-col items-center space-y-4">
                 <Upload
-                  className={`w-12 h-12 ${
-                    isDragging ? "text-primary" : "text-gray-400"
-                  } transition-colors duration-200`}
+                  className={`w-12 h-12 ${isDragging ? "text-primary" : "text-gray-400"} transition-colors duration-200`}
                 />
                 <div className="text-lg text-gray-800 dark:text-gray-100">
                   Drag and drop your resume PDF here, or

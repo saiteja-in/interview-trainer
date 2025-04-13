@@ -11,7 +11,7 @@ const ResumeAnalysisLoading = () => {
           <div className="flex items-start space-x-4">
             {/* Score Circle Skeleton */}
             <div className="relative h-24 w-24 rounded-full overflow-hidden">
-              <Skeleton className="h-full w-full rounded-full bg-pink-100 dark:bg-pink-900" />
+              <Skeleton className="h-full w-full rounded-full bg-gray-100 dark:bg-gray-800" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-gray-400 dark:text-gray-300 animate-pulse">
                   ...
@@ -24,9 +24,9 @@ const ResumeAnalysisLoading = () => {
               <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
                 Analysis Results
               </h2>
-              <Skeleton className="h-4 w-3/4 bg-pink-200 dark:bg-pink-800" />
-              <Skeleton className="h-4 w-5/6 bg-pink-200 dark:bg-pink-800" />
-              <Skeleton className="h-4 w-4/6 bg-pink-200 dark:bg-pink-800" />
+              <Skeleton className="h-4 w-3/4 bg-gray-200 dark:bg-gray-600" />
+              <Skeleton className="h-4 w-5/6 bg-gray-200 dark:bg-gray-600" />
+              <Skeleton className="h-4 w-4/6 bg-gray-200 dark:bg-gray-600" />
             </div>
           </div>
         </CardContent>
