@@ -27,19 +27,23 @@ enum InterviewStatus {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  name          String?
-  email         String?        @unique
-  emailVerified DateTime?
-  image         String?
-  role          UserRole       @default(USER)
-  jobRole       JobRole?
-  password      String?
+  id              String         @id @default(cuid())
+  name            String?
+  email           String?        @unique
+  emailVerified   DateTime?
+  image           String?
+  role            UserRole       @default(USER)
+  jobRole         JobRole?
+  password        String?
+  resumeUrl       String?        // Added: Optional URL to the resume stored on AWS S3
+  skills          String[]       // Added: Array of skills extracted from the resume
   
-  videos        Video[]
-  interviews    Interview[]
-  accounts      Account[]
+  videos          Video[]
+  interviews      Interview[]
+  accounts        Account[]
+  resumeJobs      ResumeJob[]    // Relation to ResumeJob
 }
+
 
 model Interview {
   id          String              @id @default(cuid())
@@ -127,4 +131,16 @@ model PasswordResetToken {
   expires DateTime
 
   @@unique([email, token])
+}
+
+// Updated model to store resume jobs associated with a User
+model ResumeJob {
+  id     String   @id @default(cuid())
+  title  String   // Title extracted from the resume
+  skills String[] // Array of skills extracted from the resume
+  
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
