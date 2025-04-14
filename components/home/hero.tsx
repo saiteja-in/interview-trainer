@@ -17,7 +17,7 @@ import { Variants, motion, useAnimation, useInView } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { ExtendedUser } from "@/schemas";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 
 type Props={
     user:ExtendedUser | undefined
@@ -94,7 +94,7 @@ export function MynaHero({user}:Props) {
   const isInView = useInView(ref, { once: true, amount: 0.1 });
   const handleStartPractice = () => {
     if (user) {
-      router.push("/trainer");
+      router.push("/dashboard");
     } else {
       router.push("/auth/login");
     }

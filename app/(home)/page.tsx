@@ -12,13 +12,13 @@ const Home = async () => {
   const user = (await currentUser()) as ExtendedUser;
   // console.log(user)
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-200">
+    <div className="min-h-screen bg-background transition-colors duration-200">
    
       
       {/* <main className="flex justify-center items-center text-center min-h-screen">
         Home Page
       </main> */}
-         <NavBar />
+         <NavBar user={user} />
       <MynaHero user={user} />
     </div>
   );

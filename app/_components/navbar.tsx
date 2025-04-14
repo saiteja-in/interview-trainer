@@ -1,4 +1,3 @@
-"use client"
 import React from "react";
 import Link from "next/link";
 import { LayoutDashboard, Lightbulb, User, LogOut, VideoIcon } from "lucide-react";
@@ -18,15 +17,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ModeToggle } from "./ModeToggle";
 import { ResumeIcon } from "@radix-ui/react-icons";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { useRouter } from "nextjs-toploader/app";
-
-const NavBar = () => {
-    const user = useCurrentUser();
-  const router=useRouter()
+import { ExtendedUser } from "@/schemas";
+interface NavBarProps {
+  user: ExtendedUser | undefined;
+}
+const NavBar: React.FC<NavBarProps> = ({ user }) => {
 
   return (
-    <div className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="sticky top-0 z-50 border-b bg-background backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-6">
           <Link
@@ -38,7 +36,7 @@ const NavBar = () => {
               <div className="absolute -inset-1 animate-pulse rounded-full bg-yellow-500/20 group-hover:bg-yellow-400/30" />
             </div>
             <span className="hidden bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent md:block">
-              Interview Trainer
+              InterviewAI
             </span>
           </Link>
 
@@ -63,25 +61,33 @@ const NavBar = () => {
                 <span className="font-medium">View Videos</span>
               </Link>
             </Button>
-            <Button
-              variant="ghost"
+            <Button 
+              className="dark:text-black dark:hover:bg-white dark:bg-white"
+              variant="default"
               asChild
-              className="group flex items-center gap-2 transition-all duration-300 hover:bg-primary/10"
             >
-             <Button onClick={()=>router.push("/resume-analysis")}>
+              <Link href="/resume-analysis" className="flex items-center gap-2">
                 <ResumeIcon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-                <span className="font-medium">Resume Analysis</span>
-              </Button>
+                <span>Resume Analysis</span>
+              </Link>
             </Button>
           </nav>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="transition-transform duration-300 hover:scale-105">
+        <div className="transition-transform duration-300 hover:scale-105">
             <ModeToggle />
           </div>
           
           {user ? (
+               <div className="flex items-center gap-2">
+               <Button
+                 className="dark:text-black dark:hover:bg-white dark:bg-white"
+                 variant="default"
+                 asChild
+               >
+                 <Link href="/dashboard">Dashboard</Link>
+               </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
@@ -139,6 +145,7 @@ const NavBar = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </div>
           ) : (
             <LoginButton>
               <Button className="font-medium transition-transform duration-300 hover:scale-105">
@@ -146,6 +153,7 @@ const NavBar = () => {
               </Button>
             </LoginButton>
           )}
+     
         </div>
       </div>
     </div>
