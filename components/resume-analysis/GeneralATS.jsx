@@ -170,8 +170,8 @@ const GeneralATS = ({ parsedData, jobDescription, analysis }) => {
               </div>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
-              <h4 className="text-sm font-medium text-blue-800 dark:text-blue-100 mb-3">Recommendations</h4>
+            <div className="bg-primary-foreground p-4 rounded-lg">
+              <h4 className="text-sm font-medium text-foreground mb-3">Recommendations</h4>
               <ul className="space-y-2">
                 {ATSAnalysis.recommendations.map((rec, idx) => (
                   <li key={idx} className="text-blue-800 dark:text-blue-100 text-sm flex items-start gap-2">

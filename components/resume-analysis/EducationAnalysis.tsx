@@ -67,7 +67,7 @@ const EducationAnalysis = ({ analysis }: any) => {
             {Object.entries(analysis.subscores).map(([key, value]: any) => (
               <div
                 key={key}
-                className="bg-white dark:bg-black p-4 rounded-lg border hover:border-blue-200 dark:hover:border-blue-300 transition-colors border-gray-200 dark:border-gray-700"
+                className="bg-background p-4 rounded-lg border hover:border-blue-200 dark:hover:border-blue-300 transition-colors border-gray-200 dark:border-gray-700"
               >
                 <h4 className="text-sm text-gray-600 dark:text-gray-400 capitalize mb-1">
                   {key.replace(/Score$/, "").split(/(?=[A-Z])/).join(" ")}

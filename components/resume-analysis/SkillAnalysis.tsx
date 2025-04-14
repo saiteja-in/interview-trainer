@@ -16,7 +16,7 @@ const SkillsAnalysis = ({ analysis }: any) => {
       <AccordionTrigger className="bg-muted p-4 cursor-pointer hover:no-underline">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
-            <Code className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <Code className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             <span className="font-semibold text-lg text-gray-800 dark:text-gray-100">
               Skills Analysis
             </span>
@@ -33,7 +33,7 @@ const SkillsAnalysis = ({ analysis }: any) => {
                 analysis.overallScore >= 80
                   ? "text-yellow-500"
                   : analysis.overallScore >= 60
-                    ? "text-gray-600 dark:text-gray-400"
+                    ? "text-gray-500 dark:text-gray-400"
                     : "text-gray-400 dark:text-gray-500"
               }`}
             />
@@ -58,7 +58,7 @@ const SkillsAnalysis = ({ analysis }: any) => {
             {Object.entries(analysis.subscores).map(([key, value]: any) => (
               <div
                 key={key}
-                className="bg-white dark:bg-black p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 transition-colors"
+                className="bg-background p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 transition-colors"
               >
                 <h4 className="text-sm text-gray-600 dark:text-gray-400 capitalize mb-1">
                   {key.replace(/Score$/, "").split(/(?=[A-Z])/).join(" ")}
@@ -90,7 +90,7 @@ const SkillsAnalysis = ({ analysis }: any) => {
                   {analysis?.matchingSkills?.map((skill: any, index: number) => (
                     <span
                       key={index}
-                      className="px-3 py-1.5 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded-lg text-sm font-medium border border-green-200 dark:border-green-700 hover:bg-green-100 transition-colors"
+                      className="px-3 py-1.5 bg-green-50 dark:bg-green-700 text-green-600 dark:text-green-400 rounded-lg text-sm font-medium border border-green-200 dark:border-green-700 hover:bg-green-100 transition-colors"
                     >
                       {skill}
                     </span>

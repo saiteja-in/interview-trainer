@@ -85,7 +85,7 @@ const PDFExtractor = () => {
               <embed
                 src={`${pdfUrl}#toolbar=0&navpanes=0`}
                 type="application/pdf"
-                className="w-full h-full rounded-lg border border-gray-200 dark:border-gray-700"
+                className="w-full h-full rounded-lg "
                 style={{ minHeight: "calc(100vh - 4rem)" }}
               />
             </div>
@@ -98,7 +98,7 @@ const PDFExtractor = () => {
           )}
 
           {analysis && (
-            <Card className="w-[93%] mx-auto m-4 col-span-3 bg-background">
+            <Card className="w-[93%] mx-auto m-4 col-span-3 bg-background border border-secondary">
               <CardHeader className="flex flex-row items-start justify-between gap-6 py-6">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">

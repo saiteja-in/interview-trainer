@@ -101,7 +101,7 @@ const ProjectAnalysis = ({ parsedData, analysis }: any) => {
             {Object.entries(analysis.subscores).map(([key, value]: any) => (
               <div
                 key={key}
-                className="bg-white dark:bg-black p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-200 transition-colors"
+                className="bg-background p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-200 transition-colors"
               >
                 <h4 className="text-sm text-gray-600 dark:text-gray-400 capitalize mb-1">
                   {key.replace(/Score$/, "").split(/(?=[A-Z])/).join(" ")}
@@ -159,8 +159,8 @@ const ProjectAnalysis = ({ parsedData, analysis }: any) => {
                 <div className="p-4 space-y-4">
                   {/* Magic Points */}
                   {loadingStates[i] && (
-                    <div className="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg border border-purple-100 dark:border-purple-700">
-                      <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+                    <div className="bg-popover p-4 rounded-lg border border-border">
+                      <div className="flex items-center gap-2 text-secondary-foreground">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         <span className="text-sm">Improving project descriptions...</span>
                       </div>
@@ -168,13 +168,13 @@ const ProjectAnalysis = ({ parsedData, analysis }: any) => {
                   )}
 
                   {magicPoints[i] && magicPoints[i].length > 0 && (
-                    <div className="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg border border-purple-100 dark:border-purple-700 animate-fadeIn">
-                      <h4 className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-3">
+                    <div className="bg-popover p-4 rounded-lg border border-border animate-fadeIn">
+                      <h4 className="text-sm font-medium text-secondary-foreground mb-3">
                         ✨ Improved descriptions
                       </h4>
                       <ul className="list-disc list-inside space-y-2">
                         {magicPoints[i].map((point, idx) => (
-                          <li key={idx} className="text-purple-700 dark:text-purple-300 text-sm">{point}</li>
+                          <li key={idx} className="text-foreground text-sm">{point}</li>
                         ))}
                       </ul>
                     </div>
@@ -213,8 +213,8 @@ const ProjectAnalysis = ({ parsedData, analysis }: any) => {
                   </div>
 
                   {/* Project Review */}
-                  <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg border border-blue-100 dark:border-blue-700">
-                    <p className="text-blue-700 dark:text-blue-300 text-sm">{project.wittyComment}</p>
+                  <div className="bg-primary-foreground p-4 rounded-lg border border-border">
+                    <p className="text-foreground text-sm">{project.wittyComment}</p>
                   </div>
                 </div>
               </div>

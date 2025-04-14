@@ -103,7 +103,7 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
             {Object.entries(analysis.subscores).map(([key, value]: any) => (
               <div
                 key={key}
-                className="bg-white dark:bg-black p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-200 transition-colors"
+                className="bg-background p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-200 transition-colors"
               >
                 <h4 className="text-sm text-gray-600 dark:text-gray-400 capitalize mb-1">
                   {key
@@ -242,15 +242,15 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
 
                   {/* Improvement Tips */}
                   {role.improvementTips.length > 0 && (
-                    <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg border border-blue-100 dark:border-blue-700">
-                      <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+                    <div className="bg-primary-foreground p-4 rounded-lg border border-border">
+                      <h4 className="text-sm font-medium text-foreground mb-2">
                         Improvement Tips
                       </h4>
                       <ul className="space-y-2">
                         {role.improvementTips.map((tip: any, idx: number) => (
                           <li
                             key={idx}
-                            className="text-blue-700 dark:text-blue-300 text-sm flex items-start gap-2"
+                            className="text-foreground 0 text-sm flex items-start gap-2"
                           >
                             <span>•</span>
                             {tip}
