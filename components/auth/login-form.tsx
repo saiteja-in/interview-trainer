@@ -133,8 +133,8 @@ export const LoginForm = () => {
             <Button
               type="submit"
               disabled={isPending}
-              className="w-full font-medium border-2 hover:border-neutral-500 dark:hover:border-neutral-400 hover:bg-neutral-800 dark:hover:bg-neutral-300"
-              variant={theme === "dark" ? "default" : "secondary"}
+              className="w-full font-medium  "
+              // variant={theme === "dark" ? "default" : "secondary"}
             >
               {isPending ? (
                 <>

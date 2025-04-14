@@ -40,13 +40,13 @@ body {
     --chart-4: 34.58 100.00% 88.43%;
     --chart-5: 16.50 24.39% 32.16%;
     --sidebar: 0 0% 98.43%;
-    --sidebar-foreground: 0 0% 14.51%;
-    --sidebar-primary: 0 0% 20.39%;
-    --sidebar-primary-foreground: 0 0% 98.43%;
-    --sidebar-accent: 0 0% 96.86%;
-    --sidebar-accent-foreground: 0 0% 20.39%;
-    --sidebar-border: 0 0% 92.16%;
-    --sidebar-ring: 0 0% 70.98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
     --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -59,6 +59,7 @@ body {
     --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
     --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
     --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --sidebar-background: 0 0% 98%;
   }
   
   .dark {
@@ -87,13 +88,13 @@ body {
     --chart-4: 30.00 17.86% 21.96%;
     --chart-5: 30 100% 87.84%;
     --sidebar: 240 5.88% 10%;
-    --sidebar-foreground: 240 4.76% 95.88%;
-    --sidebar-primary: 224.28 76.33% 48.04%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.70% 15.88%;
-    --sidebar-accent-foreground: 240 4.76% 95.88%;
-    --sidebar-border: 240 3.70% 15.88%;
-    --sidebar-ring: 240 4.88% 83.92%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
     --font-sans: undefined;
     --font-serif: undefined;
     --font-mono: undefined;
@@ -106,6 +107,7 @@ body {
     --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
     --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
     --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --sidebar-background: 240 5.9% 10%;
   }
 }
 

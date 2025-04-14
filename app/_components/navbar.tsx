@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { LayoutDashboard, Lightbulb, User, LogOut, VideoIcon } from "lucide-react";
+import {  Lightbulb, User, LogOut, VideoIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LoginButton } from "@/components/auth/login-button";
 import { currentUser } from "@/lib/auth";
