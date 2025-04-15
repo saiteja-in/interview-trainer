@@ -27,6 +27,7 @@ import { NavUser } from "./nav-user";
 import { Button } from "./ui/button";
 import { ExtendedUser } from "@/schemas";
 import { currentUser } from "@/lib/auth";
+import { NavNavigation } from "./nav-navigation";
 
 // This is sample data.
 
@@ -64,6 +65,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
       </SidebarHeader>
       <SidebarContent>
         {/* <NavMain items={data.navMain} /> */}
+        <NavNavigation/>
         <NavDocuments />
         <NavSecondary />
       </SidebarContent>

@@ -94,7 +94,7 @@ export function MynaHero({user}:Props) {
   const isInView = useInView(ref, { once: true, amount: 0.1 });
   const handleStartPractice = () => {
     if (user) {
-      router.push("/dashboard");
+      router.push("/trainer");
     } else {
       router.push("/auth/login");
     }

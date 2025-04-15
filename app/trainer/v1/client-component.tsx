@@ -436,10 +436,9 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
 
             <div className="flex gap-4 mt-auto">
               <Button
-                variant="outline"
                 onClick={() => handleQuestionNavigation("previous")}
                 disabled={currentQuestionIndex === 0}
-                className="flex-1 py-4 rounded-xl border-gray-700 text-gray-100 hover:border-indigo-500 hover:bg-indigo-500/10"
+                // className="flex-1 py-4 rounded-xl border-gray-700 text-gray-100 hover:border-indigo-500 hover:bg-indigo-500/10"
               >
                 Previous
               </Button>
@@ -447,7 +446,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
               {currentQuestionIndex < questions.length - 1 ? (
                 <Button
                   onClick={() => handleQuestionNavigation("next")}
-                  className="flex-1 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-700"
+                  // className="flex-1 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-700"
                 >
                   Next Question
                 </Button>
