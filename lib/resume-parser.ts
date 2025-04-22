@@ -1,25 +1,13 @@
-// This is a simplified resume parser
-// In a production app, you would use a more robust solution like resume-parser npm package
-// or integrate with a service like Affinda, Sovren, etc.
-
-export type ParsedResume = {
+export interface ParsedResume {
     basics: {
       name: string
+      title: string
       email: string
       phone: string
       location: string
-      title: string
-      summary: string
       website: string
+      summary: string
     }
-    education: Array<{
-      institution: string
-      area: string
-      studyType: string
-      startDate: string
-      endDate: string
-      gpa: string
-    }>
     work: Array<{
       company: string
       position: string
@@ -27,6 +15,14 @@ export type ParsedResume = {
       endDate: string
       summary: string
       highlights: string[]
+    }>
+    education: Array<{
+      institution: string
+      area: string
+      studyType: string
+      startDate: string
+      endDate: string
+      gpa: string
     }>
     skills: Array<{
       name: string
@@ -36,131 +32,138 @@ export type ParsedResume = {
     projects: Array<{
       name: string
       description: string
-      highlights: string[]
+      startDate: string
+      endDate: string
       url: string
-    }>
-    certifications: Array<{
-      name: string
-      issuer: string
-      date: string
+      highlights: string[]
     }>
   }
   
   export const defaultResume: ParsedResume = {
     basics: {
       name: "",
+      title: "",
       email: "",
       phone: "",
       location: "",
-      title: "",
-      summary: "",
       website: "",
+      summary: "",
     },
-    education: [],
     work: [],
+    education: [],
     skills: [],
     projects: [],
-    certifications: [],
+  }
+  
+  export function formatDate(dateString: string): string {
+    if (!dateString) return "N/A"
+    if (dateString === "Present") return "Present"
+  
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+    } catch (e) {
+      return dateString
+    }
   }
   
   export async function parseResume(file: File): Promise<ParsedResume> {
-    // In a real implementation, you would send the file to a server or use a client-side library
-    // For this demo, we'll simulate parsing with a timeout
+    // In a real application, this would call an API to parse the resume
+    // For this demo, we'll return mock data after a delay to simulate API call
     return new Promise((resolve) => {
       setTimeout(() => {
-        // This is mock data - in a real app, this would be the result of actual parsing
         resolve({
           basics: {
-            name: "John Doe",
-            email: "john.doe@example.com",
+            name: "Alex Johnson",
+            title: "Senior Frontend Developer",
+            email: "alex.johnson@example.com",
             phone: "(555) 123-4567",
             location: "San Francisco, CA",
-            title: "Senior Frontend Developer",
+            website: "https://alexjohnson.dev",
             summary:
-              "Experienced frontend developer with 5+ years of experience building modern web applications with React, TypeScript, and Next.js.",
-            website: "https://johndoe.dev",
+              "Experienced frontend developer with 5+ years of experience building responsive and accessible web applications using React, TypeScript, and modern web technologies.",
           },
+          work: [
+            {
+              company: "Tech Innovations Inc.",
+              position: "Senior Frontend Developer",
+              startDate: "2021-03-01",
+              endDate: "Present",
+              summary: "Lead frontend development for enterprise SaaS platform",
+              highlights: [
+                "Architected and implemented a component library used across 5 product teams",
+                "Reduced bundle size by 35% through code splitting and lazy loading",
+                "Mentored junior developers and led frontend architecture discussions",
+                "Implemented CI/CD pipelines that reduced deployment time by 40%",
+              ],
+            },
+            {
+              company: "WebSolutions Co.",
+              position: "Frontend Developer",
+              startDate: "2018-06-01",
+              endDate: "2021-02-28",
+              summary: "Developed responsive web applications for clients across industries",
+              highlights: [
+                "Built interactive dashboards using React and D3.js",
+                "Implemented responsive designs that work across all device sizes",
+                "Collaborated with UX designers to implement pixel-perfect interfaces",
+                "Optimized web performance achieving 95+ Lighthouse scores",
+              ],
+            },
+          ],
           education: [
             {
               institution: "University of California, Berkeley",
               area: "Computer Science",
               studyType: "Bachelor of Science",
-              startDate: "2015-09-01",
-              endDate: "2019-05-31",
+              startDate: "2014-09-01",
+              endDate: "2018-05-30",
               gpa: "3.8",
-            },
-          ],
-          work: [
-            {
-              company: "Tech Solutions Inc.",
-              position: "Senior Frontend Developer",
-              startDate: "2021-06-01",
-              endDate: "Present",
-              summary: "Lead frontend development for enterprise SaaS platform",
-              highlights: [
-                "Architected and implemented new React component library",
-                "Reduced bundle size by 35% through code splitting and lazy loading",
-                "Mentored junior developers and led code reviews",
-              ],
-            },
-            {
-              company: "WebDev Agency",
-              position: "Frontend Developer",
-              startDate: "2019-07-01",
-              endDate: "2021-05-31",
-              summary: "Developed responsive web applications for various clients",
-              highlights: [
-                "Built 15+ client websites using React and Next.js",
-                "Implemented CI/CD pipelines for automated testing and deployment",
-                "Collaborated with designers to implement pixel-perfect UIs",
-              ],
             },
           ],
           skills: [
             {
               name: "Frontend Development",
               level: "Expert",
-              keywords: ["React", "TypeScript", "Next.js", "CSS", "HTML"],
+              keywords: ["React", "TypeScript", "JavaScript", "HTML", "CSS", "Tailwind CSS"],
             },
             {
-              name: "UI/UX",
-              level: "Intermediate",
-              keywords: ["Figma", "Responsive Design", "Accessibility"],
+              name: "Tools & Frameworks",
+              level: "Advanced",
+              keywords: ["Next.js", "Redux", "Webpack", "Jest", "Testing Library", "Git"],
             },
             {
               name: "Backend Development",
               level: "Intermediate",
-              keywords: ["Node.js", "Express", "MongoDB", "PostgreSQL"],
+              keywords: ["Node.js", "Express", "MongoDB", "PostgreSQL", "REST APIs", "GraphQL"],
             },
           ],
           projects: [
             {
-              name: "Personal Portfolio",
-              description: "A showcase of my work and skills",
-              highlights: ["Built with Next.js and Tailwind CSS", "Fully responsive design", "Dark mode support"],
-              url: "https://johndoe.dev",
-            },
-            {
               name: "E-commerce Platform",
-              description: "A full-stack e-commerce solution",
+              description: "A full-featured e-commerce platform with product management, cart, and checkout",
+              startDate: "2022-01-01",
+              endDate: "2022-06-30",
+              url: "https://github.com/alexjohnson/ecommerce-platform",
               highlights: [
-                "React frontend with Next.js",
-                "Node.js backend with Express",
-                "Stripe integration for payments",
+                "Built with Next.js, TypeScript, and Tailwind CSS",
+                "Implemented Stripe payment integration",
+                "Created a headless CMS for product management",
+                "Optimized for SEO and accessibility",
               ],
-              url: "https://github.com/johndoe/ecommerce",
-            },
-          ],
-          certifications: [
-            {
-              name: "AWS Certified Developer",
-              issuer: "Amazon Web Services",
-              date: "2022-03-15",
             },
             {
-              name: "React Advanced Certification",
-              issuer: "Frontend Masters",
-              date: "2021-11-10",
+              name: "Weather Dashboard",
+              description: "Real-time weather dashboard with location search and forecasts",
+              startDate: "2021-08-01",
+              endDate: "2021-10-15",
+              url: "https://weather-dashboard-demo.vercel.app",
+              highlights: [
+                "Used React with custom hooks for state management",
+                "Integrated with OpenWeather API",
+                "Implemented geolocation for current location weather",
+                "Added responsive charts for temperature and precipitation",
+              ],
             },
           ],
         })
@@ -168,14 +171,3 @@ export type ParsedResume = {
     })
   }
   
-  export function formatDate(dateString: string): string {
-    if (dateString === "Present") return "Present"
-  
-    try {
-      const date = new Date(dateString)
-      return new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(date)
-    } catch (e) {
-      return dateString
-    }
-  }
-0  
