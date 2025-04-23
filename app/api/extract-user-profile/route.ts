@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { PromptTemplate } from '@langchain/core/prompts';
-import { optional, z } from 'zod';
+import { z } from 'zod';
 
 export const runtime = 'edge';
 
@@ -56,14 +56,13 @@ const profileSchema = z.object({
       description: z.string(),
       startDate: z.string().optional(),
       endDate: z.string().optional(),
-      url: z.string().optional(),
       highlights: z.array(z.string()).optional(),
     })
   ).optional(),
   codingProfiles: z.array(
     z.object({
-      platform: z.string(),
-      url: z.string(),
+      platform: z.string().optional(),
+      username: z.string().optional(),
     })
   ).optional(),
   certifications: z.array(
@@ -73,6 +72,7 @@ const profileSchema = z.object({
       date: z.string().optional(),
     })
   ).optional(),
+  achievements: z.array(z.string()).optional(),
   hobbies: z.array(z.string()).optional(),
 });
 
@@ -88,7 +88,7 @@ Resume Text:
 Return only valid JSON matching the schema.`);
 
 export async function POST(req: NextRequest) {
-  console.log("console comes here")
+  console.log("console comes here");
   try {
     const { text } = await req.json();
     if (!text) {
