@@ -186,7 +186,11 @@ const ResumeAnalysisClient: React.FC<ResumeAnalysisClientProps> = ({
           <div className="col-span-3">
             {/* If no job selected yet, show job selection */}
             {!selectedJob ? (
-              <JobSelection selectedJob={selectedJob} setSelectedJob={setSelectedJob} />
+              <JobSelection 
+              selectedJob={selectedJob} 
+              setSelectedJob={setSelectedJob} 
+              isWithPdf={true} // Add this prop
+            />
             ) : (
               <>
                 {/* If job selected but analysis not yet complete, show loading */}

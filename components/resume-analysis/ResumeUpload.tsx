@@ -209,10 +209,10 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({
       // Save the extracted text and get user profile
       setExtractedText(text);
       
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/extract-user-profile`,
-        { text }
-      );
+      // await axios.post(
+      //   `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/extract-user-profile`,
+      //   { text }
+      // );
       
       await uploadImage(file);
       await getStructured(text);

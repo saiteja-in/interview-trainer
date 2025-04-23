@@ -36,12 +36,15 @@ interface JobSelectionProps {
   selectedJob: JobRequirement | null;
   setSelectedJob: (job: JobRequirement | null) => void;
   inUploadMode?: boolean;
+  // New prop to determine if component is alongside PDF
+  isWithPdf?: boolean;
 }
 
 interface JobCardProps {
   job: JobRequirement;
   isSelected: boolean;
   onSelect: (job: JobRequirement) => void;
+  isCompact?: boolean;
 }
 
 // Shared job descriptions that can be imported from both components
@@ -100,18 +103,18 @@ export const defaultJobDescriptions: JobRequirement[] = [
 ];
 
 // Reusable JobCard component
-export const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect }) => {
+export const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect, isCompact = false }) => {
   return (
     <Card
       className={`transition-all duration-200 hover:shadow-lg ${
         isSelected ? "border-primary ring-2 ring-primary" : ""
-      } bg-white dark:bg-black cursor-pointer`}
+      } bg-white dark:bg-black cursor-pointer ${isCompact ? "h-full" : ""}`}
       onClick={() => onSelect(job)}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className={`${isCompact ? "p-3" : "pb-3"}`}>
         <div className="flex justify-between items-start">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+            <CardTitle className={`${isCompact ? "text-base" : "text-lg"} font-semibold text-gray-800 dark:text-gray-100`}>
               {job.title}
               {job.isCustom && " (Custom)"}
             </CardTitle>
@@ -121,22 +124,22 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect }) =
           )}
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className={`${isCompact ? "pt-0 p-3" : "pt-0"}`}>
         <div className="space-y-3">
-          <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
+          <p className={`${isCompact ? "text-xs" : "text-sm"} text-gray-600 dark:text-gray-300 line-clamp-3`}>
             {job.description}
           </p>
 
-          <div className="flex justify-between items-center gap-3 mt-4">
+          <div className="flex justify-between items-center gap-2 mt-4">
             <Dialog>
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-xs cursor-pointer"
+                  className={`${isCompact ? "text-xs px-2 py-1 h-auto" : "text-xs"} cursor-pointer`}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Eye className="h-4 w-4 mr-1" />
+                  <Eye className={`${isCompact ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1"}`} />
                   View Details
                 </Button>
               </DialogTrigger>
@@ -180,13 +183,13 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect }) =
             </Dialog>
             <Button
               size="sm"
-              className="text-xs cursor-pointer"
+              className={`${isCompact ? "text-xs px-2 py-1 h-auto" : "text-xs"} cursor-pointer`}
               onClick={(e) => {
                 e.stopPropagation();
                 onSelect(job);
               }}
             >
-              {isSelected ? "Selected" : "Select Position"}
+              {isSelected ? "Selected" : "Select"}
             </Button>
           </div>
         </div>
@@ -198,7 +201,8 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect }) =
 const JobSelection: React.FC<JobSelectionProps> = ({ 
   selectedJob, 
   setSelectedJob, 
-  inUploadMode = false 
+  inUploadMode = false,
+  isWithPdf = false 
 }) => {
   const [customJobDescription, setCustomJobDescription] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
@@ -245,75 +249,90 @@ const JobSelection: React.FC<JobSelectionProps> = ({
     }
   };
 
+  // Adjust styling and layout based on whether the component is displayed alongside a PDF
+  const cardWidth = isWithPdf ? "max-w-full" : "max-w-[95%]";
+  const cardMargin = isWithPdf ? "mx-4" : "mx-auto"; // Add horizontal margin when next to PDF
+  const cardPadding = isWithPdf ? "p-4" : ""; 
+  const headerPadding = isWithPdf ? "p-4 pb-2" : "";
+  const contentPadding = isWithPdf ? "p-4 pt-0" : "";
+  
+  // Always show 2 jobs per row when with PDF
+  const gridCols = isWithPdf 
+    ? "grid-cols-1 sm:grid-cols-2" 
+    : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+  
   return (
-    <Card className="max-w-[95%] mx-auto mt-8 bg-white dark:bg-black border border-secondary">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          Select a Job Description
-        </CardTitle>
-        <CardDescription className="text-gray-600 dark:text-gray-400">
-          Choose a job description to compare your resume against for targeted analysis
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {allJobs.map((job) => (
-            <JobCard
-              key={job.id}
-              job={job}
-              isSelected={inUploadMode ? selectedJob?.id === job.id : tempSelectedJob?.id === job.id}
-              onSelect={inUploadMode ? setSelectedJob : setTempSelectedJob}
-            />
-          ))}
+    <div className={isWithPdf ? "pl-2 pr-2 pt-4" : ""}>
+      <Card className={`${cardWidth} ${cardMargin} ${isWithPdf ? 'mt-0' : 'mt-8'} bg-white dark:bg-black border border-secondary ${cardPadding}`}>
+        <CardHeader className={`${headerPadding}`}>
+          <CardTitle className={`${isWithPdf ? "text-xl" : "text-2xl"} font-bold text-gray-800 dark:text-gray-100`}>
+            Select a Job Description
+          </CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">
+            Choose a job description to compare your resume against
+          </CardDescription>
+        </CardHeader>
+        <CardContent className={`space-y-4 ${contentPadding}`}>
+          <div className={`grid ${gridCols} gap-4`}>
+            {allJobs.map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                isSelected={inUploadMode ? selectedJob?.id === job.id : tempSelectedJob?.id === job.id}
+                onSelect={inUploadMode ? setSelectedJob : setTempSelectedJob}
+                isCompact={isWithPdf}
+              />
+            ))}
 
-          {/* Add Custom Job Card */}
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Card className="flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors p-6 bg-white dark:bg-black">
-                <Plus className="h-12 w-12 text-gray-400" />
-                <p className="mt-4 text-gray-600 dark:text-gray-300 font-medium">
-                  Add Custom Job
-                </p>
-              </Card>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-white dark:bg-black">
-              <DialogHeader>
-                <DialogTitle>Add Custom Job Description</DialogTitle>
-                <DialogDescription>
-                  Paste the job description here for targeted resume analysis.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 mt-4">
-                <Textarea
-                  placeholder="Paste the job description here..."
-                  value={customJobDescription}
-                  onChange={(e) => setCustomJobDescription(e.target.value)}
-                  className="min-h-[200px] bg-gray-50 dark:bg-black text-gray-700 dark:text-gray-300"
-                />
-                <DialogFooter>
-                  <Button onClick={handleCustomJobSubmit} className="w-full">
-                    Add & Select Job Description
-                  </Button>
-                </DialogFooter>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {/* Only show confirm button in standalone mode (not in upload) */}
-        {!inUploadMode && (
-          <div className="flex justify-center pt-6">
-            <Button 
-              onClick={confirmSelection}
-              disabled={!tempSelectedJob}
-              className="px-8 py-2"
-            >
-              Analyze Resume for Selected Position
-            </Button>
+            {/* Add Custom Job Card */}
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Card className={`flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors ${isWithPdf ? "p-3" : "p-6"} bg-white dark:bg-black h-full`}>
+                  <Plus className={`${isWithPdf ? "h-8 w-8" : "h-12 w-12"} text-gray-400`} />
+                  <p className={`${isWithPdf ? "mt-2 text-sm" : "mt-4"} text-gray-600 dark:text-gray-300 font-medium`}>
+                    Add Custom Job
+                  </p>
+                </Card>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md bg-white dark:bg-black">
+                <DialogHeader>
+                  <DialogTitle>Add Custom Job Description</DialogTitle>
+                  <DialogDescription>
+                    Paste the job description here for targeted resume analysis.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <Textarea
+                    placeholder="Paste the job description here..."
+                    value={customJobDescription}
+                    onChange={(e) => setCustomJobDescription(e.target.value)}
+                    className="min-h-[200px] bg-gray-50 dark:bg-black text-gray-700 dark:text-gray-300"
+                  />
+                  <DialogFooter>
+                    <Button onClick={handleCustomJobSubmit} className="w-full">
+                      Add & Select Job Description
+                    </Button>
+                  </DialogFooter>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* Only show confirm button in standalone mode (not in upload) */}
+          {!inUploadMode && (
+            <div className="flex justify-center pt-4">
+              <Button 
+                onClick={confirmSelection}
+                disabled={!tempSelectedJob}
+                className={`${isWithPdf ? "px-4 py-1 text-sm" : "px-8 py-2"}`}
+              >
+                Analyze Resume for Selected Position
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
