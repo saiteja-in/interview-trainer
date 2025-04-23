@@ -35,13 +35,13 @@ model User {
   role            UserRole       @default(USER)
   jobRole         JobRole?
   password        String?
-  resumeUrl       String?        // Added: Optional URL to the resume stored on AWS S3
-  skills          String[]       // Added: Array of skills extracted from the resume
-  
+  resumeUrl       String?        // URL to the resume stored on AWS S3
+  extractedText   String?        @db.Text  // Added: full raw text extracted from the resume
+  skills          String[]
   videos          Video[]
   interviews      Interview[]
   accounts        Account[]
-  resumeJobs      ResumeJob[]    // Relation to ResumeJob
+  resumeJobs      ResumeJob[]
 }
 
 

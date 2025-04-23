@@ -20,6 +20,8 @@ const profileSchema = z.object({
     phone: z.string().optional(),
     location: z.string().optional(),
     website: z.string().optional(),
+    linkedIn:z.string().optional(),
+    github: z.string().optional(),
     summary: z.string().optional(),
   }),
   experience: z.array(

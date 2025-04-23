@@ -38,7 +38,7 @@ const PDFExtractor = () => {
 
   return (
     <div className="bg-background text-gray-800 dark:text-gray-100 min-h-screen py-4 px-2">
-      {!pdfUrl && (
+      {!pdfUrl && !sup && (
         <ResumeUpload
           selectedJob={selectedJob}
           setSelectedJob={setSelectedJob}

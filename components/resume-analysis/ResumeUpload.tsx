@@ -53,6 +53,22 @@ interface JobCardProps {
 interface Analysis {
   [key: string]: any;
 }
+// at top of your file
+const validateResumeText = (text: string): boolean => {
+  const hasEmail = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/.test(text);
+  const hasPhone = /(?:\+?\d{1,3}[-.\s]?)?\d{10}\b/.test(text);
+  const hasSection = /experience|education|skills|projects|certifications/i.test(text);
+
+  // require email + phone, or at least two sections
+  const sectionsFound = [
+    /experience/i.test(text),
+    /education/i.test(text),
+    /skills/i.test(text),
+    /projects/i.test(text),
+  ].filter(Boolean).length;
+
+  return (hasEmail && hasPhone) || sectionsFound >= 2;
+};
 
 const jobDescriptions: JobRequirement[] = [
   {
@@ -209,6 +225,8 @@ const ResumeUpload: React.FC = ({
       if (!response.data) {
         throw new Error("No data received from server");
       }
+      console.log("response parsed resume",response.data.parsedResume);
+      console.log("response analysis",response.data.analysis);
       setParsedData(response.data.parsedResume);
       setAnalysis(response.data.analysis);
     } catch (error) {
@@ -296,6 +314,18 @@ const ResumeUpload: React.FC = ({
       const pdf = await pdfjsLib.getDocument({ data: fileData }).promise;
       const images = await convertToImage(pdf);
       const text = await convertToText(images);
+      if (!validateResumeText(text)) {
+        wassup(true);
+        toast.error("That doesn’t look like a resume. Please upload a real resume PDF.");
+        return;            // ← bail out early
+      }
+  
+      //here we need to check if the pdf is resume or not
+      console.log("text",text);
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/extract-user-profile`,
+        { text }
+      );
       setExtractedText(text);
       await uploadImage(file);
       await getStructured(text);

@@ -1,11 +1,12 @@
-"use client";
-
+import { currentUser } from "@/lib/auth";
 import NavBar from "../_components/navbar";
+import { ExtendedUser } from "@/schemas";
 
-const AuthLayout = ({ children }: { children: React.ReactNode }) => {
+const AuthLayout =async ({ children }: { children: React.ReactNode }) => {
+   const user = (await currentUser()) as ExtendedUser;
   return (
    <div>
-    <NavBar/>
+    <NavBar user={user} />
     {children}
    </div>
   );
