@@ -18,7 +18,7 @@ import { type ParsedResume, defaultResume } from "@/lib/resume-parser"
 export default function ProfilePageClient() {
   const [hasResume, setHasResume] = useState(false)
   const [resumeData, setResumeData] = useState<ParsedResume>(defaultResume)
-  const [activeTab, setActiveTab] = useState("personal")
+  const [activeTab, setActiveTab] = useState("upload")
 
   const handleResumeUploaded = (parsedResume: ParsedResume) => {
     setResumeData(parsedResume)
@@ -100,14 +100,14 @@ export default function ProfilePageClient() {
             </CardContent>
           </Card>
 
-          {/* Resume Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Resume</CardTitle>
-              <CardDescription>Manage your professional resume</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {hasResume ? (
+          {/* Resume Actions - Only show after resume is uploaded */}
+          {hasResume && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Resume</CardTitle>
+                <CardDescription>Manage your professional resume</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground flex items-center">
@@ -117,91 +117,69 @@ export default function ProfilePageClient() {
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <Button variant="outline" onClick={() => setActiveTab("preview")} className="w-full">
-                      <Eye className="h-4 w-4 mr-2" /> View Resume
+                      <Eye className="h-4 w-4 mr-2" /> View
                     </Button>
                     <Button variant="outline" className="w-full">
                       <Download className="h-4 w-4 mr-2" /> Download
                     </Button>
                   </div>
                   <Button variant="default" onClick={() => setActiveTab("upload")} className="w-full">
-                    <Upload className="h-4 w-4 mr-2" /> Update Resume
+                    <Upload className="h-4 w-4 mr-2" /> Update
                   </Button>
                 </div>
-              ) : (
-                <div className="text-center space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Upload your resume to automatically fill your profile information
-                  </p>
-                  <Button onClick={() => setActiveTab("upload")} className="w-full">
-                    <Upload className="h-4 w-4 mr-2" /> Upload Resume
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div className="md:col-span-5 space-y-6">
-          {!hasResume ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload Your Resume</CardTitle>
-                <CardDescription>Upload your resume to automatically fill your profile information</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResumeUpload onResumeUploaded={handleResumeUploaded} />
-              </CardContent>
-            </Card>
+          {!hasResume || activeTab === "upload" ? (
+            <ResumeUpload
+              onResumeUploaded={handleResumeUploaded}
+              existingResume={hasResume}
+              title={hasResume ? "Update Resume" : "Upload Your Resume"}
+              description={
+                hasResume
+                  ? "Upload a new version of your resume to update your profile"
+                  : "Upload your resume to automatically fill your profile information"
+              }
+            />
           ) : (
-            <>
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="personal">Personal Info</TabsTrigger>
-                  <TabsTrigger value="experience">Experience</TabsTrigger>
-                  <TabsTrigger value="projects">Projects</TabsTrigger>
-                  <TabsTrigger value="skills">Skills</TabsTrigger>
-                </TabsList>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="personal">Personal Info</TabsTrigger>
+                <TabsTrigger value="experience">Experience</TabsTrigger>
+                <TabsTrigger value="projects">Projects</TabsTrigger>
+                <TabsTrigger value="skills">Skills</TabsTrigger>
+              </TabsList>
 
-                <TabsContent value="personal" className="space-y-6 pt-6">
-                  <ResumeSectionBasics basics={resumeData.basics} onUpdate={updateBasics} />
-                </TabsContent>
+              <TabsContent value="personal" className="space-y-6 pt-6">
+                <ResumeSectionBasics basics={resumeData.basics} onUpdate={updateBasics} />
+              </TabsContent>
 
-                <TabsContent value="experience" className="space-y-6 pt-6">
-                  <ResumeSectionWork work={resumeData.work} onUpdate={updateWork} />
-                  <ResumeSectionEducation education={resumeData.education} onUpdate={updateEducation} />
-                </TabsContent>
+              <TabsContent value="experience" className="space-y-6 pt-6">
+                <ResumeSectionWork work={resumeData.work} onUpdate={updateWork} />
+                <ResumeSectionEducation education={resumeData.education} onUpdate={updateEducation} />
+              </TabsContent>
 
-                <TabsContent value="projects" className="space-y-6 pt-6">
-                  <ResumeSectionProjects projects={resumeData.projects} onUpdate={updateProjects} />
-                </TabsContent>
+              <TabsContent value="projects" className="space-y-6 pt-6">
+                <ResumeSectionProjects projects={resumeData.projects} onUpdate={updateProjects} />
+              </TabsContent>
 
-                <TabsContent value="skills" className="space-y-6 pt-6">
-                  <ResumeSectionSkills skills={resumeData.skills} onUpdate={updateSkills} />
-                </TabsContent>
+              <TabsContent value="skills" className="space-y-6 pt-6">
+                <ResumeSectionSkills skills={resumeData.skills} onUpdate={updateSkills} />
+              </TabsContent>
 
-                <TabsContent value="preview" className="space-y-6 pt-6">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-bold">Resume Preview</h2>
-                    <Button variant="outline" onClick={() => setActiveTab("personal")}>
-                      <Edit className="h-4 w-4 mr-2" /> Edit Resume
-                    </Button>
-                  </div>
-                  <ResumePreview resume={resumeData} />
-                </TabsContent>
-
-                <TabsContent value="upload" className="space-y-6 pt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Update Your Resume</CardTitle>
-                      <CardDescription>Upload a new resume to update your profile information</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <ResumeUpload onResumeUploaded={handleResumeUploaded} existingResume={hasResume} />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
-            </>
+              <TabsContent value="preview" className="space-y-6 pt-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold">Resume Preview</h2>
+                  <Button variant="outline" onClick={() => setActiveTab("personal")}>
+                    <Edit className="h-4 w-4 mr-2" /> Edit
+                  </Button>
+                </div>
+                <ResumePreview resume={resumeData} />
+              </TabsContent>
+            </Tabs>
           )}
         </div>
       </div>
