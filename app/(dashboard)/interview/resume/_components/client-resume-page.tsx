@@ -6,236 +6,118 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FileUp, Clock, Hash, FileText } from "lucide-react";
-import Link from "next/link";
+import { FileText, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import ResumeUpload from "@/components/resume-analysis/resume-jobs";
-import { ResumeDialog } from "@/components/resume-analysis/resume-dialog";
-import type { ExtendedUser } from "@/schemas";
-import { getResumeData } from "@/actions/resume-jobs";
-
-type ResumeJob = {
-  id: string;
-  title: string;
-  skills: string[];
-};
+import { saveResume } from "@/actions/resume-jobs";
 
 type ResumeData = {
-  resumeJobs: ResumeJob[];
+  resumeJobs: {
+    id: string;
+    title: string;
+    skills: string[];
+  }[];
   skills: string[];
-  resumeUrl: string | null;
 };
 
 type ClientResumeInterviewPageProps = {
-  user: ExtendedUser;
+  resumeUrl: string | null;
+  extractedText: string | null;
   initialResumeData: ResumeData | null;
+  showExtractButton: boolean;
 };
 
 export default function ClientResumeInterviewPage({
-  user,
+  resumeUrl,
+  extractedText,
   initialResumeData,
+  showExtractButton,
 }: ClientResumeInterviewPageProps) {
-  // Use the server-fetched resume data as the initial state.
-  const [resumeData, setResumeData] = useState<ResumeData | null>(initialResumeData);
   const [loading, setLoading] = useState(false);
-  const [duration, setDuration] = useState("45");
-  const [questionCount, setQuestionCount] = useState(6);
   const { toast } = useToast();
-  const [isResumeDialogOpen, setIsResumeDialogOpen] = useState(false);
 
-  // Callback when resume upload & processing completes successfully.
-  const handleResumeUploaded = async () => {
+  // Only show this component when we need to extract jobs from existing text
+  if (!showExtractButton || !extractedText) {
+    return null;
+  }
+
+  // Process the extracted text if we have it but no jobs
+  const processExistingExtractedText = async () => {
     setLoading(true);
-    const result = await getResumeData();
-    setLoading(false);
-    if (result.success && result.data) {
-      setResumeData(result.data);
-      toast({
-        title: "Resume analyzed successfully",
-        description: "We've generated your resume jobs and extracted skills",
+    try {
+      // 1. Call the extract resume jobs API
+      const response = await fetch("/api/extract-resume-jobs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ extractedText }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // 2. Save the extracted jobs using the server action
+      const saveResult = await saveResume({
+        jobs: data.parsedJobs,
+        skills: data.parsedSkills,
+      });
+      
+      if (!saveResult.success) {
+        throw new Error(saveResult.error || "Failed to save resume info");
+      }
+      
+      toast({
+        title: "Success",
+        description: "Resume jobs extracted and saved successfully!",
+      });
+      
+      // Reload the page to get updated data
+      window.location.reload();
+    } catch (error: any) {
+      console.error("Error processing extracted text:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to extract job information",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getIconComponent = (iconName: string) => {
-    // Return an icon component based on iconName.
-    // Here, we simply return a default FileUp icon.
-    return <FileUp className="h-10 w-10 text-primary" />;
-  };
-
-  const handleStartInterview = () => {
-    toast({
-      title: "Interview configured",
-      description: `Starting interview with ${questionCount} questions for ${duration} minutes`,
-    });
-  };
-
   return (
-    <div className="container space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Resume-Based Interview</h1>
-      <p className="text-muted-foreground">
-        Upload your resume to get personalized interview questions
-      </p>
-
-      {/* Render ResumeUpload component if resumeUrl is not set */}
-      {!loading && !resumeData?.resumeUrl && (
-        <ResumeUpload onSuccess={handleResumeUploaded} />
-      )}
-
-      {resumeData?.resumeUrl && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Resume</CardTitle>
-            <CardDescription>
-              We've analyzed your resume and extracted key skills and experience.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="text-lg font-medium">Overall Skills</h3>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {resumeData.skills.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium">Extracted Jobs</h3>
-              <ul className="mt-2 space-y-2">
-                {resumeData.resumeJobs.map((job) => (
-                  <li key={job.id} className="text-sm">
-                    <span className="font-medium">{job.title}</span> —{" "}
-                    {job.skills.join(", ")}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button onClick={() => setIsResumeDialogOpen(true)}>
-              <FileText className="mr-2 h-4 w-4" /> View Full Resume
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
-
-      {/* ResumeDialog: when "View Full Resume" is clicked */}
-      {resumeData?.resumeUrl && (
-        <ResumeDialog
-          isOpen={isResumeDialogOpen}
-          onClose={() => setIsResumeDialogOpen(false)}
-          resumeUrl={resumeData.resumeUrl}
-        />
-      )}
-
-      {/* Recommended Interviews: Using the extracted resume jobs */}
-      {resumeData?.resumeJobs && resumeData.resumeJobs.length > 0 && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold">Recommended Interviews</h2>
-          <p className="text-muted-foreground">
-            Based on your extracted resume jobs, here are your recommended interviews:
-          </p>
-          <div className="grid gap-6 md:grid-cols-3">
-            {resumeData.resumeJobs.map((job) => (
-              <Card key={job.id} className="hover:shadow-md transition-all">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    {getIconComponent("default")}
-                    <div>
-                      <CardTitle>{job.title}</CardTitle>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Skills:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {job.skills.map((skill, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-xs"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+    <Card className="max-w-[80%] mx-auto my-8">
+      <CardHeader>
+        <CardTitle className="text-center text-2xl">
+          Resume Uploaded
+        </CardTitle>
+        <CardDescription className="text-center">
+          Your resume has been uploaded, but we need to extract job data from it.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4 text-center">
+        {loading ? (
+          <div className="flex flex-col items-center gap-4 my-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p>Extracting job information from your resume...</p>
           </div>
-        </div>
-      )}
-
-      {/* Interview configuration section */}
-      {resumeData?.resumeUrl && (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Configure Interview</CardTitle>
-              <CardDescription>
-                Customize your interview session based on your preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              <div className="grid gap-2">
-                <label
-                  htmlFor="duration"
-                  className="flex items-center gap-2 text-sm font-medium"
-                >
-                  <Clock className="h-4 w-4" /> Interview Duration
-                </label>
-                <Select value={duration} onValueChange={setDuration}>
-                  <SelectTrigger id="duration">
-                    <SelectValue placeholder="Select duration" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="30">30 minutes</SelectItem>
-                    <SelectItem value="45">45 minutes</SelectItem>
-                    <SelectItem value="60">60 minutes</SelectItem>
-                    <SelectItem value="90">90 minutes</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <label
-                  htmlFor="questions"
-                  className="flex items-center gap-2 text-sm font-medium"
-                >
-                  <Hash className="h-4 w-4" /> Number of Questions: {questionCount}
-                </label>
-                <Slider
-                  id="questions"
-                  value={[questionCount]}
-                  min={3}
-                  max={10}
-                  step={1}
-                  onValueChange={(value) => setQuestionCount(value[0])}
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Link
-                href={`/interview/session?type=resume&id=${resumeData.resumeJobs[0]?.id}&duration=${duration}&questions=${questionCount}`}
-                passHref
-              >
-                <Button onClick={handleStartInterview}>Start Interview</Button>
-              </Link>
-            </CardFooter>
-          </Card>
-        </div>
-      )}
-    </div>
+        ) : (
+          <div className="flex flex-col items-center gap-4 my-8">
+            <Button onClick={processExistingExtractedText} size="lg">
+              <FileText className="mr-2 h-4 w-4" /> Extract Job Information
+            </Button>
+            <p className="text-sm text-muted-foreground">
+              Click to analyze your resume and extract job information
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
