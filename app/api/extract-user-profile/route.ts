@@ -1,236 +1,351 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { PromptTemplate } from '@langchain/core/prompts';
+import { StringOutputParser } from '@langchain/core/output_parsers';
+import { RunnableSequence } from '@langchain/core/runnables';
 import { z } from 'zod';
 
 export const runtime = 'edge';
 
-// Create singleton instance of LLM with proper initialization check
+// Define environment variable type check
+const getRequiredEnvVar = (name: string): string => {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+};
+
+// Singleton pattern with lazy initialization
 let llmInstance: ChatGoogleGenerativeAI | null = null;
 
-const getLLM = () => {
-  if (!llmInstance && process.env.GOOGLE_API_KEY) {
+// Factory function with type safety
+const getLLM = (): ChatGoogleGenerativeAI => {
+  if (!llmInstance) {
+    
     llmInstance = new ChatGoogleGenerativeAI({
-      model: 'gemini-2.0-flash',
+      modelName: 'gemini-2.0-flash', // Latest model as of 2025-04
+      maxOutputTokens: 4096,
       maxRetries: 2,
-      maxConcurrency: 5,
-      temperature: 0.05, // Very low temperature for consistency
-      apiKey: process.env.GOOGLE_API_KEY,
+      temperature: 0.1, // Low temperature for consistent outputs
     });
   }
   return llmInstance;
 };
 
-// Helper function to safely normalize URLs
-const normalizeUrl = (url: string | undefined | null): string | undefined => {
-  if (!url) return undefined;
+// Comprehensive schema with improved validation
+const resumeSchema = z.object({
+  fullName: z.string().min(1, "Name is required"),
+  shortBio: z.string().optional(),
+  location: z.string().optional(),
+  contactInfo: z.object({
+    email: z.string().email().optional(),
+    phone: z.string().optional(),
+  }).optional(),
   
-  try {
-    // Remove any whitespace and trailing/leading characters
-    url = url.trim();
-    
-    // Check if it looks like a URL already
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    
-    // Convert @username format for Twitter
-    if (url.startsWith('@')) {
-      return `https://twitter.com/${url.substring(1)}`;
-    }
-    
-    // Handle platform-specific URLs
-    if (url.includes('github.com/')) {
-      return url.startsWith('www.') ? `https://${url}` : `https://www.${url}`;
-    }
-    
-    if (url.includes('linkedin.com/')) {
-      return url.startsWith('www.') ? `https://${url}` : `https://www.${url}`; 
-    }
-    
-    // Handle GitHub username conversion (simple username pattern)
-    if (/^[a-zA-Z0-9][-\w]{0,38}$/.test(url) && !url.includes('.') && !url.includes('/')) {
-      return `https://github.com/${url}`;
-    }
-    
-    // Handle LinkedIn username conversion
-    if (/^[a-zA-Z0-9][\w-]{0,29}$/.test(url) && !url.includes('.') && !url.includes('/')) {
-      return `https://www.linkedin.com/in/${url}`;
-    }
-    
-    // Default case - add https if it looks like a domain
-    if (url.includes('.')) {
-      return url.startsWith('www.') ? `https://${url}` : `https://${url}`;
-    }
-    
-    return url;
-  } catch (e) {
-    console.error('URL normalization error:', e);
-    return url; // Return original if normalization fails
-  }
-};
-
-// Schema with improved validation and descriptions
-const profileSchema = z.object({
-  fullName: z.string().describe('Full name of the person'),
-  shortAbout: z.string().describe('Brief professional tagline or title').optional(),
-  location: z.string().describe('Location with format "City, Country" or "City, State, Country"'),
-  email: z.string().describe('Email address').optional(),
-  phone: z.string().describe('Phone number with country code if available').optional(),
-  website: z.string().describe('Personal website or portfolio URL').optional(),
-  linkedin: z.string().describe('LinkedIn profile URL or username').optional(),
-  github: z.string().describe('GitHub profile URL or username').optional(),
-  twitter: z.string().describe('Twitter/X username or URL').optional(),
-  skills: z.array(z.string())
-    .describe('Core technical and professional skills extracted from experience'),
-  summary: z.string().describe('Professional summary highlighting expertise and career objectives'),
+  links: z.object({
+    website: z.string().url().optional(),
+    linkedin: z.string().optional(),
+    github: z.string().optional(),
+    twitter: z.string().optional(),
+  }).optional(),
+  
+  skills: z.array(z.string()).min(1, "At least one skill is expected"),
+  
+  summary: z.string(),
   
   workExperience: z.array(
     z.object({
-      company: z.string().describe('Company or organization name'),
-      title: z.string().describe('Job title or position'),
-      startDate: z.string().describe('Start date in format YYYY-MM'),
-      endDate: z.string().describe('End date in format YYYY-MM, or "Present"').optional(),
-      location: z.string().describe('Job location (City, Country) or Remote/Hybrid').optional(),
-      description: z.string().describe('Job description').optional(),
-      highlights: z.array(z.string()).describe('Key achievements or responsibilities').optional(),
-      techStack: z.array(z.string()).describe('Technologies used in this role').optional(),
+      company: z.string(),
+      title: z.string(),
+      startDate: z.string(),
+      endDate: z.string().optional(),
+      location: z.string().optional(),
+      description: z.string().optional(),
+      highlights: z.array(z.string()).optional(),
+      technologies: z.array(z.string()).optional(),
     })
   ),
   
   education: z.array(
     z.object({
-      institution: z.string().describe('School or university name'),
-      degree: z.string().describe('Degree or certification obtained'),
-      field: z.string().describe('Field of study or major').optional(),
-      startDate: z.string().describe('Start year or date'),
-      endDate: z.string().describe('End year or date, or "Present"'),
-      gpa: z.string().describe('GPA or academic performance metric').optional(),
+      institution: z.string(),
+      degree: z.string(),
+      field: z.string().optional(),
+      startDate: z.string(),
+      endDate: z.string().optional(),
+      gpa: z.string().optional(),
+      highlights: z.array(z.string()).optional(),
     })
   ).optional(),
   
   projects: z.array(
     z.object({
-      name: z.string().describe('Project name'),
-      description: z.string().describe('Project description'),
-      link: z.string().describe('Project URL or repository').optional(),
-      startDate: z.string().describe('Start date').optional(),
-      endDate: z.string().describe('End date or "Present"').optional(),
-      highlights: z.array(z.string()).describe('Key features or achievements').optional(),
-      techStack: z.array(z.string()).describe('Technologies used').optional(),
+      name: z.string(),
+      description: z.string(),
+      url: z.string().url().optional(),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+      highlights: z.array(z.string()).optional(),
+      technologies: z.array(z.string()).optional(),
     })
   ).optional(),
   
   certifications: z.array(
     z.object({
-      name: z.string().describe('Certification name'),
-      issuer: z.string().describe('Certification issuing organization'),
-      date: z.string().describe('Date obtained').optional(),
+      name: z.string(),
+      issuer: z.string(),
+      date: z.string().optional(),
+      url: z.string().url().optional(),
+      validUntil: z.string().optional(),
     })
   ).optional(),
-  
-  achievements: z.array(z.string()).describe('Notable professional achievements').optional(),
   
   languages: z.array(
     z.object({
       language: z.string(),
-      proficiency: z.string().describe('Proficiency level').optional(),
+      proficiency: z.string().optional(),
     })
   ).optional(),
   
-  interests: z.array(z.string()).describe('Professional interests and hobbies').optional(),
+  achievements: z.array(z.string()).optional(),
+  
+  interests: z.array(z.string()).optional(),
 });
 
-// Shorter, optimized prompt for faster processing
-const extractPrompt = PromptTemplate.fromTemplate(`
-You are a resume parser. Extract information from the resume text into JSON.
+type ResumeProfile = z.infer<typeof resumeSchema>;
 
-INSTRUCTIONS:
-1. Focus on extracting: name, location, contact details, skills, summary, work history, education
-2. For missing info: infer skills from job descriptions, create a brief summary based on career path
-3. Format all dates consistently as YYYY-MM
-4. For links, extract just the username or URL without processing
-5. Output ONLY valid JSON
+// URL normalization utility
+const normalizeUrl = (url: string | undefined | null): string | undefined => {
+  if (!url) return undefined;
+  
+  try {
+    url = url.trim();
+    
+    // Regular expressions for different URL patterns
+    const twitterPattern = /^@?(\w{1,15})$/;
+    const githubPattern = /^([a-zA-Z0-9](?:-?[a-zA-Z0-9]){0,38})$/;
+    const linkedinPattern = /^([\w-\.]+)$/;
+    
+    // Twitter handle
+    if (twitterPattern.test(url)) {
+      return `https://twitter.com/${url.replace('@', '')}`;
+    }
+    
+    // GitHub username (when not a full URL)
+    if (githubPattern.test(url) && !url.includes('.') && !url.includes('/')) {
+      return `https://github.com/${url}`;
+    }
+    
+    // LinkedIn username (when not a full URL)
+    if (linkedinPattern.test(url) && !url.includes('.') && !url.includes('/')) {
+      return `https://www.linkedin.com/in/${url}`;
+    }
+    
+    // Add https if missing but has domain
+    if (url.includes('.') && !url.startsWith('http')) {
+      return url.startsWith('www.') ? `https://${url}` : `https://www.${url}`;
+    }
+    
+    return url;
+  } catch (e) {
+    console.error('URL normalization error:', e);
+    return url;
+  }
+};
+
+// Main extraction prompt
+const extractionPrompt = PromptTemplate.fromTemplate(`
+You are a professional resume parser. Extract structured information from the resume text into JSON.
+
+REQUIREMENTS:
+1. Extract person's details: name, contact info, location, skills, etc.
+2. Parse all work experience and education history with accurate dates.
+3. Format dates consistently as YYYY-MM.
+4. Extract all skills, technologies, and specializations.
+5. Create a concise professional summary.
+6. For missing fields, leave as null or empty arrays [].
 
 RESUME TEXT:
 {text}
 
-Output ONLY valid JSON with no explanations or markdown.
+Output ONLY valid JSON with no markdown, comments, or explanations.
 `);
 
-// Ultra-simplified fallback prompt for speed
+// Fallback prompt (simpler and faster)
 const fallbackPrompt = PromptTemplate.fromTemplate(`
-Create JSON from this resume:
+Parse this resume into JSON with these fields:
+- fullName: person's name
+- summary: brief professional summary
+- skills: array of skills
+- workExperience: array of jobs with company, title, dates
+- education: array of education with institution, degree, dates
+
+RESUME:
 {text}
 
-Include at minimum: fullName, location, email, skills, summary, workExperience (company, title, dates), education.
-Return ONLY valid JSON without explanations or markdown.
+Output ONLY valid JSON.
 `);
 
-// Helper to safely extract JSON from LLM responses
+// JSON extraction utility
 const extractJSON = (content: string): any => {
   try {
-    // First try direct JSON parse
+    // Direct parsing first
     return JSON.parse(content);
   } catch (e) {
     try {
-      // Try to extract JSON from code blocks or text
-      const jsonMatch = content.match(/```(?:json)?\s*({[\s\S]*?})\s*```|({[\s\S]*})/);
+      // Extract from markdown code blocks if needed
+      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```|({[\s\S]*})/);
       if (jsonMatch) {
         const jsonString = (jsonMatch[1] || jsonMatch[2]).trim();
         return JSON.parse(jsonString);
       }
     } catch (innerErr) {
-      console.warn("Failed to extract JSON from content:", innerErr);
+      console.warn("Failed to extract JSON from content");
     }
     
     throw new Error("Could not extract valid JSON from response");
   }
 };
 
-// Helper to normalize URLs in the parsed profile
+// Normalize all URLs in profile
 const normalizeProfileUrls = (profile: any): any => {
   try {
-    // Clone to avoid modifying the original
-    const normalized = { ...profile };
+    const normalized = JSON.parse(JSON.stringify(profile)); // Deep clone
     
-    // Normalize social/web links
-    if (normalized.website) normalized.website = normalizeUrl(normalized.website);
-    if (normalized.linkedin) normalized.linkedin = normalizeUrl(normalized.linkedin);
-    if (normalized.github) normalized.github = normalizeUrl(normalized.github);
-    if (normalized.twitter) normalized.twitter = normalizeUrl(normalized.twitter);
+    // Normalize links
+    if (normalized.links) {
+      if (normalized.links.website) normalized.links.website = normalizeUrl(normalized.links.website);
+      if (normalized.links.linkedin) normalized.links.linkedin = normalizeUrl(normalized.links.linkedin);
+      if (normalized.links.github) normalized.links.github = normalizeUrl(normalized.links.github);
+      if (normalized.links.twitter) normalized.links.twitter = normalizeUrl(normalized.links.twitter);
+    }
     
-    // Fix project links if available
+    // Normalize project URLs
     if (normalized.projects?.length > 0) {
       normalized.projects = normalized.projects.map((project: any) => {
-        const updatedProject = { ...project };
-        if (updatedProject.link) updatedProject.link = normalizeUrl(updatedProject.link);
-        return updatedProject;
+        if (project.url) project.url = normalizeUrl(project.url);
+        return project;
+      });
+    }
+    
+    // Normalize certification URLs
+    if (normalized.certifications?.length > 0) {
+      normalized.certifications = normalized.certifications.map((cert: any) => {
+        if (cert.url) cert.url = normalizeUrl(cert.url);
+        return cert;
       });
     }
     
     return normalized;
   } catch (e) {
     console.error("Error normalizing URLs:", e);
-    return profile; // Return original if normalization fails
+    return profile; // Return original on error
   }
 };
 
-export async function POST(req: NextRequest) {
+// Process the resume with metrics
+async function processResume(text: string): Promise<{ profile: any; metrics: any }> {
+  const startTime = Date.now();
+  const metrics: Record<string, any> = { textLength: text.length };
+  
+  // Truncate very large texts
+  const processedText = text.length > 10000 ? text.substring(0, 10000) : text;
+  metrics.truncated = text.length !== processedText.length;
+  
+  try {
+    // Create chain with output parsing
+    const llm = getLLM();
+    const outputParser = new StringOutputParser();
+    
+    // Choose strategy based on text size
+    const prompt = text.length > 5000 ? fallbackPrompt : extractionPrompt;
+    metrics.strategy = text.length > 5000 ? 'fallback' : 'standard';
+    
+    // Create and execute the chain
+    const chain = RunnableSequence.from([
+      prompt,
+      llm,
+      outputParser,
+    ]);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      metrics.timedOut = true;
+    }, 13000); // 13 second timeout
+    
+    const result = await chain.invoke(
+      { text: processedText },
+      { signal: controller.signal }
+    );
+    
+    clearTimeout(timeoutId);
+    
+    // Parse the JSON result
+    const parsedJson = extractJSON(result);
+    const normalizedProfile = normalizeProfileUrls(parsedJson);
+    
+    // Validate against schema if possible
+    let validatedProfile = normalizedProfile;
+    try {
+      validatedProfile = resumeSchema.parse(normalizedProfile);
+      metrics.validated = true;
+    } catch (validationError) {
+      console.warn("Schema validation failed:", validationError);
+      metrics.validated = false;
+    }
+    
+    metrics.processingTime = (Date.now() - startTime) / 1000;
+    return { profile: validatedProfile, metrics };
+    
+  } catch (error: any) {
+    console.warn("Primary extraction failed:", error?.message);
+    metrics.primaryFailed = true;
+    
+    try {
+      // Ultra-fallback approach with minimal text
+      const llm = getLLM();
+      const outputParser = new StringOutputParser();
+      
+      const minimalChain = RunnableSequence.from([
+        fallbackPrompt,
+        llm,
+        outputParser,
+      ]);
+      
+      // For fallback, process even less text
+      const truncatedText = text.substring(0, Math.min(text.length, 3000));
+      metrics.fallbackTextLength = truncatedText.length;
+      
+      const fallbackResult = await minimalChain.invoke({ text: truncatedText });
+      const fallbackParsed = extractJSON(fallbackResult);
+      const normalizedFallback = normalizeProfileUrls(fallbackParsed);
+      
+      metrics.processingTime = (Date.now() - startTime) / 1000;
+      metrics.method = 'ultra-fallback';
+      
+      return { profile: normalizedFallback, metrics };
+    } catch (fallbackError: any) {
+      throw new Error(`Failed to parse resume: ${fallbackError?.message}`);
+    }
+  }
+}
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
   console.log("Processing resume extraction request");
   const startTime = Date.now();
   
   try {
-    // Check LLM initialization
-    const llm = getLLM();
-    if (!llm) {
+    // Check environment variables before processing
+    if (!process.env.GOOGLE_API_KEY) {
       return NextResponse.json(
-        { error: 'AI model not initialized', success: false },
+        { error: 'API key not configured', success: false },
         { status: 500 }
       );
     }
     
-    // Parse request efficiently with error handling
+    // Parse request with validation
     let text: string;
     try {
       const body = await req.json();
@@ -248,96 +363,39 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Choose processing strategy based on text size
-    const textLength = text.length;
-    console.log(`Processing resume with ${textLength} characters`);
     
-    // For very large texts, truncate to improve processing speed
-    const processedText = textLength > 8000 ? text.substring(0, 8000) : text;
+    // Process the resume
+    const { profile, metrics } = await processResume(text);
     
-    // Choose prompt based on text size
-    const useQuickStrategy = textLength > 4000;
-    const prompt = useQuickStrategy ? fallbackPrompt : extractPrompt;
+    // Build response with metrics
+    const totalTime = (Date.now() - startTime) / 1000;
     
-    try {
-      // Use AbortController for timeout control if supported
-      const controller = typeof AbortController !== 'undefined' ? new AbortController() : undefined;
-      const timeoutId = setTimeout(() => {
-        controller?.abort();
-      }, 14000); // 14 second timeout
-      
-      // Process with main strategy
-      const chain = prompt.pipe(llm);
-      const result = await chain.invoke({ 
-        text: processedText,
-        signal: controller?.signal
-      });
-      
-      clearTimeout(timeoutId);
-      
-      // Extract and normalize JSON
-      const parsedJson = extractJSON(result.content as string);
-      const normalizedProfile = normalizeProfileUrls(parsedJson);
-      
-      const endTime = Date.now();
-      const processingTime = (endTime - startTime) / 1000;
-      console.log(`Resume extraction completed in ${processingTime}s`);
-      
-      return NextResponse.json({ 
-        profile: normalizedProfile,
-        success: true,
-        processingTime: `${processingTime}s`
-      });
-    } catch (error: any) {
-      console.warn("Primary extraction failed:", error.message);
-      
-      // Ultra-fast fallback approach
-      try {
-        const fallbackChain = fallbackPrompt.pipe(llm);
-        
-        // For fallback, process even less text
-        const truncatedText = text.substring(0, Math.min(text.length, 3000));
-        
-        const fallbackResult = await fallbackChain.invoke({ text: truncatedText });
-        
-        // Extract JSON from fallback response
-        const fallbackParsed = extractJSON(fallbackResult.content as string);
-        const normalizedFallback = normalizeProfileUrls(fallbackParsed);
-        
-        const endTime = Date.now();
-        const processingTime = (endTime - startTime) / 1000;
-        console.log(`Resume extraction (fallback) completed in ${processingTime}s`);
-        
-        return NextResponse.json({ 
-          profile: normalizedFallback,
-          success: true,
-          method: 'fallback',
-          processingTime: `${processingTime}s`
-        });
-      } catch (fallbackError: any) {
-        throw new Error(`Failed to parse resume: ${fallbackError.message}`);
+    return NextResponse.json({
+      profile,
+      success: true,
+      metrics: {
+        ...metrics,
+        totalTime: `${totalTime}s`,
+        timestamp: new Date().toISOString(),
       }
-    }
-  } catch (err: any) {
-    const endTime = Date.now();
-    const processingTime = (endTime - startTime) / 1000;
+    });
     
-    console.error(`Error extracting profile (${processingTime}s):`, err);
+  } catch (err: any) {
+    const totalTime = (Date.now() - startTime) / 1000;
+    
+    console.error(`Error extracting profile (${totalTime}s):`, err);
     
     return NextResponse.json(
-      { 
-        error: 'Failed to extract profile', 
+      {
+        error: 'Failed to extract profile',
         details: err instanceof Error ? err.message : 'Unknown error',
         success: false,
-        processingTime: `${processingTime}s` 
+        processingTime: `${totalTime}s`
       },
       { status: 500 }
     );
   }
 }
-
-
 
 // import { NextRequest, NextResponse } from 'next/server';
 // import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
