@@ -6,6 +6,7 @@ import {
   MoreVerticalIcon,
   UserCircleIcon,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -24,7 +25,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { ExtendedUser } from "@/schemas";
-import { logout } from "@/actions/logout";
 import { ModeToggle } from "@/app/_components/ModeToggle";
 
 interface Props {
@@ -42,6 +42,10 @@ export function NavUser({ user }: Props) {
         .join("")
         .toUpperCase()
     : "";
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: '/', redirect: true });
+  };
 
   return (
     <SidebarMenu>
@@ -109,14 +113,10 @@ export function NavUser({ user }: Props) {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="cursor-pointer text-red-600 transition-colors duration-300 hover:bg-red-100 focus:bg-red-100 dark:hover:bg-red-900/50 dark:focus:bg-red-900/50"
-                asChild
+                onClick={handleSignOut}
               >
-                <form action={logout} className="w-full">
-                  <button type="submit" className="flex w-full items-center">
-                    <LogOutIcon className="mr-2 w-4 h-4" />
-                    <span>Log out</span>
-                  </button>
-                </form>
+                <LogOutIcon className="mr-2 w-4 h-4" />
+                <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
