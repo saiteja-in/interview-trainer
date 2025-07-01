@@ -54,9 +54,9 @@ const Camera: FC<CameraProps> = ({ onClosed, onCapturedImages }) => {
     handleOnClosed();
   };
   return (
-    <div className="z-10 flex min-w-[calc(100vw_-_theme(spacing.4))] flex-1 flex-col ">
+    <div className="z-10 flex min-w-[calc(100vw-(--spacing(4)))] flex-1 flex-col ">
       <div className="relative w-full ">
-        <div className="absolute z-10 w-full md:h-[calc(93vh_-_theme(spacing.12))] md:w-[20%] ">
+        <div className="absolute z-10 w-full md:h-[calc(93vh-(--spacing(12)))] md:w-[20%] ">
           <div className="relative left-2 top-0">
             <Button
               className=" rounded-full p-4 opacity-40 hover:opacity-100  "
@@ -101,7 +101,7 @@ const Camera: FC<CameraProps> = ({ onClosed, onCapturedImages }) => {
 
         <div
           className={cn(
-            "absolute z-10 w-full md:right-0 md:top-0  md:h-[calc(93vh_-_theme(spacing.12))] md:w-[20%]",
+            "absolute z-10 w-full md:right-0 md:top-0  md:h-[calc(93vh-(--spacing(12)))] md:w-[20%]",
           )}
         >
           {images.length > 0 && (
@@ -191,7 +191,7 @@ function Gallery() {
         <DialogHeader>
           <DialogTitle>{images.length} Photos</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="h-[calc(80vh-_theme(spacing.16))]">
+        <ScrollArea className="h-[calc(80vh-(--spacing(16)))]">
           <div className="grid grid-cols-2 gap-2  ">
             {images.map((image, index) => (
               <div key={index} className="relative ">

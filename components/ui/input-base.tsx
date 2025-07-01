@@ -59,7 +59,7 @@ export const InputBase = React.forwardRef<
           }
         })}
         className={cn(
-          "flex min-h-9 cursor-text items-center gap-2 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors",
+          "flex min-h-9 cursor-text items-center gap-2 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors",
           disabled && "cursor-not-allowed opacity-50",
           focused && "ring-1 ring-ring",
           className
@@ -173,7 +173,7 @@ export const InputBaseInput = React.forwardRef<
   <Primitive.input
     ref={ref}
     className={cn(
-      "w-1/2 flex-1 bg-transparent file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus:outline-none disabled:pointer-events-none",
+      "w-1/2 flex-1 bg-transparent file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus:outline-hidden disabled:pointer-events-none",
       className
     )}
     {...props}

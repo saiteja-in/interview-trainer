@@ -158,11 +158,11 @@ export const RegisterForm = () => {
         </Form>
 
         <div className="flex flex-row items-center justify-between">
-          <div className="w-full h-[1px] bg-neutral-200 dark:bg-neutral-800" />
+          <div className="w-full h-px bg-neutral-200 dark:bg-neutral-800" />
           <span className="text-sm px-4 text-neutral-400 dark:text-neutral-700">
             OR
           </span>
-          <div className="w-full h-[1px] bg-neutral-200 dark:bg-neutral-800" />
+          <div className="w-full h-px bg-neutral-200 dark:bg-neutral-800" />
         </div>
 
         <div className="w-full">

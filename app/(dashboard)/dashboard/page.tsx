@@ -291,15 +291,15 @@ export default function DashboardPage() {
               <CardContent className="px-4 sm:px-6">
                 <ul className="space-y-3">
                   <li className="flex items-start gap-2">
-                    <ListChecks className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <ListChecks className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 shrink-0" />
                     <span className="text-xs sm:text-sm">Practice 3 system design questions focusing on scalability</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <ListChecks className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <ListChecks className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 shrink-0" />
                     <span className="text-xs sm:text-sm">Work on 5 medium-level DSA problems on trees and graphs</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <ListChecks className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <ListChecks className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 shrink-0" />
                     <span className="text-xs sm:text-sm">Record and review your behavioral responses for conciseness</span>
                   </li>
                 </ul>

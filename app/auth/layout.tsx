@@ -9,7 +9,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen flex flex-col">
       <nav className="container p-4">
         <Link
-          className={cn(buttonVariants({ variant: "outline" }), "w-fit")}
+          className={cn(buttonVariants({ variant: "outline-solid" }), "w-fit")}
           href="/"
         >
           Home

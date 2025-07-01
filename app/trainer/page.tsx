@@ -46,7 +46,7 @@ export default function TrainerPage() {
             <Button
               key={role}
               type="button"
-              variant={selectedRole === role ? 'default' : 'outline'}
+              variant={selectedRole === role ? 'default' : 'outline-solid'}
               onClick={() => setSelectedRole(role)}
             >
               {role.replace(/_/g, ' ')}

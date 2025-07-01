@@ -9,7 +9,7 @@ export default function Page() {
 <div className="flex flex-col items-center min-h-screen p-4">
        <nav className="container py-4 px-10 flex justify-between ">
         <Link
-          className={cn(buttonVariants({ variant: "outline" }), "w-fit")}
+          className={cn(buttonVariants({ variant: "outline-solid" }), "w-fit")}
           href="/"
           >
           Home

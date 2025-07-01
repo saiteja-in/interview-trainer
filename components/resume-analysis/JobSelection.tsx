@@ -120,7 +120,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect, isC
             </CardTitle>
           </div>
           {isSelected && (
-            <CheckCircle2 className="text-primary h-5 w-5 flex-shrink-0 ml-2" />
+            <CheckCircle2 className="text-primary h-5 w-5 shrink-0 ml-2" />
           )}
         </div>
       </CardHeader>

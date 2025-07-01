@@ -24,7 +24,7 @@ interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = ({ user }) => {
 
   return (
-    <div className="sticky top-0 z-50 border-b bg-background backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="sticky top-0 z-50 border-b bg-background backdrop-blur-sm supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-6">
           <Link
@@ -35,7 +35,7 @@ const NavBar: React.FC<NavBarProps> = ({ user }) => {
               <Lightbulb className="h-6 w-6 text-yellow-500 transition-all duration-300 group-hover:text-yellow-400" />
               <div className="absolute -inset-1 animate-pulse rounded-full bg-yellow-500/20 group-hover:bg-yellow-400/30" />
             </div>
-            <span className="hidden bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent md:block">
+            <span className="hidden bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-transparent md:block">
               InterviewAI
             </span>
           </Link>

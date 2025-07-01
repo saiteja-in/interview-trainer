@@ -28,7 +28,7 @@ export default async function layout({
 		<nav className="container py-4 px-10 flex justify-between ">
         <Link 
           className={cn(
-            buttonVariants({ variant: "outline" }),
+            buttonVariants({ variant: "outline-solid" }),
             "w-fit"
           )} 
           href="/"

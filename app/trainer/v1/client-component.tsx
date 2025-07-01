@@ -350,12 +350,12 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
               }`}
               videoConstraints={videoConstraints}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" />
+            <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/40" />
             <Button
               onClick={toggleVideo}
               variant="ghost"
               size="sm"
-              className="absolute top-4 right-4 backdrop-blur-sm bg-black/50 text-gray-100 hover:bg-black/50"
+              className="absolute top-4 right-4 backdrop-blur-xs bg-black/50 text-gray-100 hover:bg-black/50"
             >
               {isVideoMuted ? (
                 <VideoOff className="h-5 w-5" />
@@ -397,7 +397,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
                   onClick={toggleVideo}
                   variant="ghost"
                   size="sm"
-                  className="backdrop-blur-sm bg-black/50 text-gray-100 hover:bg-black/50"
+                  className="backdrop-blur-xs bg-black/50 text-gray-100 hover:bg-black/50"
                 >
                   {isVideoMuted ? (
                     <VideoOff className="h-5 w-5" />
@@ -410,7 +410,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
                 </div>
               </div>
               {isRecording && (
-                <div className="flex items-center bg-red-500/90 text-white px-4 py-2 rounded-full backdrop-blur-sm">
+                <div className="flex items-center bg-red-500/90 text-white px-4 py-2 rounded-full backdrop-blur-xs">
                   <div className="w-2 h-2 bg-white rounded-full animate-pulse mr-2" />
                   <span className="text-sm font-medium">Recording</span>
                 </div>
@@ -469,7 +469,7 @@ export default function TrainerPageClient({ user }: ClientComponentProps) {
       )}
 
       {isUploading && (
-        <div className="fixed bottom-4 right-4 bg-black/90 px-4 py-3 rounded-lg backdrop-blur-sm shadow-lg">
+        <div className="fixed bottom-4 right-4 bg-black/90 px-4 py-3 rounded-lg backdrop-blur-xs shadow-lg">
           <div className="flex items-center gap-3">
             {uploadProgress === 100 ? (
               <Loader2 className="h-5 w-5 text-green-400 animate-spin" />

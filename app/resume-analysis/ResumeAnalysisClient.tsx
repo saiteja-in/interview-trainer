@@ -215,7 +215,7 @@ const ResumeAnalysisClient: React.FC<ResumeAnalysisClientProps> = ({
                                 i
                               </span>
                             </div>
-                            <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-white dark:bg-black text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg z-[999999]">
+                            <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-white dark:bg-black text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg z-999999">
                               Resume analysis results may not be 100% reliable.
                               This is an experimental project and should be used
                               as a general guideline only.
@@ -229,7 +229,7 @@ const ResumeAnalysisClient: React.FC<ResumeAnalysisClientProps> = ({
                         </div>
                       </div>
 
-                      <div className="relative flex-shrink-0">
+                      <div className="relative shrink-0">
                         <div className="w-32 h-32 rounded-full border-8 border-red-400 flex items-center justify-center bg-background">
                           <div className="text-center">
                             <div className="text-3xl font-bold text-primary">
