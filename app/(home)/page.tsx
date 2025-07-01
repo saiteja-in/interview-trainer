@@ -19,7 +19,7 @@ const Home = async () => {
         Home Page
       </main> */}
          <NavBar user={user} />
-      <MynaHero user={user} />
+      {/* <MynaHero user={user} /> */}
     </div>
   );
 };
