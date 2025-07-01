@@ -9,6 +9,7 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import NavBar from "./_components/navbar";
 import { Toaster } from "@/components/ui/toaster";
+import { TRPCReactProvider } from "@/lib/trpc/client";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,28 +32,30 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth()
+  const session = await auth();
   return (
-    <SessionProvider session={session}>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
+    <TRPCReactProvider>
+      <SessionProvider session={session}>
+        <html lang="en">
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
-            {/* <NavBar /> */}
-            <NextTopLoader/>
-         
-            <main>{children}</main>
-            <Toaster />
-            {/* <Footer /> */}
-          </ThemeProvider>
-        </body>
-      </html>
-    </SessionProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {/* <NavBar /> */}
+              <NextTopLoader />
+
+              <main>{children}</main>
+              <Toaster />
+              {/* <Footer /> */}
+            </ThemeProvider>
+          </body>
+        </html>
+      </SessionProvider>
+    </TRPCReactProvider>
   );
 }
