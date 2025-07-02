@@ -42,9 +42,20 @@ model User {
   interviews      Interview[]
   accounts        Account[]
   resumeJobs      ResumeJob[]
+  agents          Agent[]
 }
 
+model Agent {
+  id           String   @id @default(uuid())
+  name         String
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instructions String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
 
+  @@map("agents")
+}
 model Interview {
   id          String              @id @default(cuid())
   userId      String

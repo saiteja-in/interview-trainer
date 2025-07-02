@@ -1,13 +1,10 @@
 import React from 'react'
-import { caller } from '@/lib/trpc/server';
+import { AgentsView } from './_components/agents-view'
 
-const Page = async () => {
-  const greeting = await caller.hello({ text: "saiteja" })
+const page = () => {
   return (
-    <div className='min-h-screen flex items-center justify-center'>
-      {greeting.greeting} (fetching from server)
-    </div>
+   <AgentsView/>
   )
 }
 
-export default Page;
+export default page
