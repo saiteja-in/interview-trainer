@@ -111,36 +111,47 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect, isC
       } bg-white dark:bg-black cursor-pointer ${isCompact ? "h-full" : ""}`}
       onClick={() => onSelect(job)}
     >
-      <CardHeader className={`${isCompact ? "p-3" : "pb-3"}`}>
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <CardTitle className={`${isCompact ? "text-base" : "text-lg"} font-semibold text-gray-800 dark:text-gray-100`}>
-              {job.title}
-              {job.isCustom && " (Custom)"}
+      <CardHeader className={`${isCompact ? "p-3 pb-2" : "p-4 pb-2"}`}>
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex-1 min-w-0">
+            <CardTitle className={`${
+              isCompact ? "text-sm sm:text-base" : "text-base sm:text-lg"
+            } font-semibold text-gray-800 dark:text-gray-100 leading-tight`}>
+              <span className="line-clamp-2">
+                {job.title}
+                {job.isCustom && " (Custom)"}
+              </span>
             </CardTitle>
           </div>
           {isSelected && (
-            <CheckCircle2 className="text-primary h-5 w-5 shrink-0 ml-2" />
+            <CheckCircle2 className="text-primary h-4 w-4 sm:h-5 sm:w-5 shrink-0 mt-0.5" />
           )}
         </div>
       </CardHeader>
-      <CardContent className={`${isCompact ? "pt-0 p-3" : "pt-0"}`}>
+      <CardContent className={`${isCompact ? "px-3 py-2" : "px-4 py-3"} pt-0`}>
         <div className="space-y-3">
-          <p className={`${isCompact ? "text-xs" : "text-sm"} text-gray-600 dark:text-gray-300 line-clamp-3`}>
+          <p className={`${
+            isCompact ? "text-xs sm:text-sm" : "text-sm"
+          } text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed`}>
             {job.description}
           </p>
 
-          <div className="flex justify-between items-center gap-2 mt-4">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 pt-1">
             <Dialog>
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`${isCompact ? "text-xs px-2 py-1 h-auto" : "text-xs"} cursor-pointer`}
+                  className={`${
+                    isCompact 
+                      ? "text-xs px-2 py-1.5 h-auto min-h-[28px]" 
+                      : "text-xs px-3 py-1.5 h-auto min-h-[32px]"
+                  } cursor-pointer flex-1 sm:flex-initial`}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Eye className={`${isCompact ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1"}`} />
-                  View Details
+                  <Eye className={`${isCompact ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1"} shrink-0`} />
+                  <span className="hidden xs:inline">View Details</span>
+                  <span className="xs:hidden">Details</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto bg-white dark:bg-black">
@@ -183,7 +194,11 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isSelected, onSelect, isC
             </Dialog>
             <Button
               size="sm"
-              className={`${isCompact ? "text-xs px-2 py-1 h-auto" : "text-xs"} cursor-pointer`}
+              className={`${
+                isCompact 
+                  ? "text-xs px-2 py-1.5 h-auto min-h-[28px]" 
+                  : "text-xs px-3 py-1.5 h-auto min-h-[32px]"
+              } cursor-pointer flex-1 sm:flex-initial`}
               onClick={(e) => {
                 e.stopPropagation();
                 onSelect(job);
