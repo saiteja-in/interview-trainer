@@ -20,6 +20,14 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+// Minimal, modern chip styles for component checklist
+const chipBase =
+  "px-3 py-1 rounded-md text-sm font-medium border transition-colors";
+const chipGreen =
+  "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-100 dark:border-green-900";
+const chipGray =
+  "bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-800";
+
 const ProjectAnalysis = ({ parsedData, analysis }: any) => {
   const [magicPoints, setMagicPoints] = useState<{ [key: number]: string[] }>({});
   const [loadingStates, setLoadingStates] = useState<{ [key: number]: boolean }>({});
@@ -101,7 +109,7 @@ const ProjectAnalysis = ({ parsedData, analysis }: any) => {
             {Object.entries(analysis.subscores).map(([key, value]: any) => (
               <div
                 key={key}
-                className="bg-background p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-200 transition-colors"
+                className="bg-background p-4 rounded-lg border border-gray-200 dark:border-gray-700"
               >
                 <h4 className="text-sm text-gray-600 dark:text-gray-400 capitalize mb-1">
                   {key.replace(/Score$/, "").split(/(?=[A-Z])/).join(" ")}
@@ -193,13 +201,9 @@ const ProjectAnalysis = ({ parsedData, analysis }: any) => {
                         { label: "Quantifiers", check: project.hasQuantifiers },
                         { label: "Outcomes", check: project.hasOutcomes },
                       ].map((item, idx) => (
-                        <div
+                        <span
                           key={idx}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-                            item.check
-                              ? "bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 border border-green-100 dark:border-green-700"
-                              : "bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700"
-                          }`}
+                          className={`${chipBase} ${item.check ? chipGreen : chipGray} flex items-center gap-2`}
                         >
                           {item.check ? (
                             <CheckCircle className="w-4 h-4" />
@@ -207,7 +211,7 @@ const ProjectAnalysis = ({ parsedData, analysis }: any) => {
                             <XCircle className="w-4 h-4" />
                           )}
                           <span className="text-sm font-medium">{item.label}</span>
-                        </div>
+                        </span>
                       ))}
                     </div>
                   </div>

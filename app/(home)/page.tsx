@@ -12,7 +12,7 @@ const Home = async () => {
   const user = (await currentUser()) as ExtendedUser;
   // console.log(user)
   return (
-    <div className="min-h-screen bg-background transition-colors duration-200">
+    <div className="min-h-screen bg-background">
    
       
       {/* <main className="flex justify-center items-center text-center min-h-screen">

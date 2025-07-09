@@ -19,6 +19,16 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+// Minimal, modern chip styles for checklists and missing elements
+const chipBase =
+  "px-3 py-1 rounded-md text-sm font-medium border transition-colors";
+const chipYellow =
+  "bg-yellow-50 dark:bg-yellow-950 text-yellow-800 dark:text-yellow-300 border-yellow-100 dark:border-yellow-900";
+const chipGreen =
+  "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-100 dark:border-green-900";
+const chipGray =
+  "bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-800";
+
 const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
   const [magicPoints, setMagicPoints] = useState<{ [key: number]: string[] }>({});
   const [loadingStates, setLoadingStates] = useState<{ [key: number]: boolean }>({});
@@ -103,7 +113,7 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
             {Object.entries(analysis.subscores).map(([key, value]: any) => (
               <div
                 key={key}
-                className="bg-background p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-200 transition-colors"
+                className="bg-background p-4 rounded-lg border border-gray-200 dark:border-gray-700"
               >
                 <h4 className="text-sm text-gray-600 dark:text-gray-400 capitalize mb-1">
                   {key
@@ -194,7 +204,7 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
                     <h4 className="text-sm font-medium text-gray-800 dark:text-gray-100 mb-3">
                       Key Components
                     </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {[
                         { label: "Role", check: role.hasRole },
                         { label: "Company", check: role.hasCompanyName },
@@ -202,13 +212,9 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
                         { label: "Responsibilities", check: role.hasResponsibilities },
                         { label: "Achievements", check: role.hasAchievements },
                       ].map((item, idx) => (
-                        <div
+                        <span
                           key={idx}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-                            item.check
-                              ? "bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 border border-green-100 dark:border-green-700"
-                              : "bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600"
-                          }`}
+                          className={`${chipBase} ${item.check ? chipGreen : chipGray} flex items-center gap-2`}
                         >
                           {item.check ? (
                             <CheckCircle className="w-4 h-4" />
@@ -216,7 +222,7 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
                             <XCircle className="w-4 h-4" />
                           )}
                           <span className="text-sm font-medium">{item.label}</span>
-                        </div>
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -231,7 +237,7 @@ const ExperienceAnalysis = ({ parsedData, analysis }: any) => {
                         {role.missingElements.map((element: any, idx: number) => (
                           <span
                             key={idx}
-                            className="px-3 py-1.5 bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-300 rounded-lg text-sm font-medium"
+                            className={`${chipBase} ${chipYellow}`}
                           >
                             {element}
                           </span>

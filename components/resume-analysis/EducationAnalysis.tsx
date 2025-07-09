@@ -6,13 +6,17 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
-  Code,
   CheckCircle,
   XCircle,
   GraduationCap,
   Trophy,
-  AlertCircle,
 } from "lucide-react";
+
+// Minimal, modern chip styles for missing requirements/components
+const chipBase =
+  "px-3 py-1 rounded-md text-sm font-medium border transition-colors";
+const chipRed =
+  "bg-red-50 dark:bg-red-950 text-red-800 dark:text-red-300 border-red-100 dark:border-red-900";
 
 const EducationAnalysis = ({ analysis }: any) => {
   return (
@@ -67,7 +71,7 @@ const EducationAnalysis = ({ analysis }: any) => {
             {Object.entries(analysis.subscores).map(([key, value]: any) => (
               <div
                 key={key}
-                className="bg-background p-4 rounded-lg border hover:border-blue-200 dark:hover:border-blue-300 transition-colors border-gray-200 dark:border-gray-700"
+                className="bg-background p-4 rounded-lg border border-gray-200 dark:border-gray-700"
               >
                 <h4 className="text-sm text-gray-600 dark:text-gray-400 capitalize mb-1">
                   {key.replace(/Score$/, "").split(/(?=[A-Z])/).join(" ")}
@@ -112,12 +116,12 @@ const EducationAnalysis = ({ analysis }: any) => {
                       { label: "CGPA", check: entry.hasCGPA },
                       { label: "Location", check: entry.hasLocation },
                     ].map((item, idx) => (
-                      <div
+                      <span
                         key={idx}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+                        className={`flex items-center gap-2 ${chipBase} ${
                           item.check
-                            ? "bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 border border-green-100 dark:border-green-700"
-                            : "bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600"
+                            ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-100 dark:border-green-900"
+                            : "bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-800"
                         }`}
                       >
                         {item.check ? (
@@ -128,7 +132,7 @@ const EducationAnalysis = ({ analysis }: any) => {
                         <span className="text-sm font-medium">
                           {item.label}
                         </span>
-                      </div>
+                      </span>
                     ))}
                   </div>
 
@@ -142,7 +146,7 @@ const EducationAnalysis = ({ analysis }: any) => {
                         {entry?.missingRequired.map((field: any, idx: number) => (
                           <span
                             key={idx}
-                            className="px-3 py-1.5 bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-300 rounded-lg text-sm font-medium"
+                            className={`${chipBase} ${chipRed}`}
                           >
                             {field}
                           </span>
