@@ -1,3 +1,5 @@
+"use client";
+
 import ResumeUpload from "./resume-jobs";
 
 export default function ResumeUploadContainer() {
