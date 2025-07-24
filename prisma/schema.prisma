@@ -43,6 +43,7 @@ model User {
   accounts        Account[]
   resumeJobs      ResumeJob[]
   agents          Agent[]
+  popularInterviewSessions PopularInterviewSession[]
 }
 
 model Agent {
@@ -154,4 +155,44 @@ model ResumeJob {
   user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// Model for popular interview topics
+model PopularInterview {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  difficulty  String   // "Beginner", "Intermediate", "Advanced"
+  duration    Int      // Default duration in minutes
+  category    String   // "Data Structures", "System Design", "DevOps", etc.
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  sessions    PopularInterviewSession[]
+
+  @@index([category])
+  @@index([difficulty])
+}
+
+// Model to track user sessions for popular interviews
+model PopularInterviewSession {
+  id                    String           @id @default(cuid())
+  userId                String
+  popularInterviewId    String
+  questionCount         Int              // Number of questions selected by user
+  duration              Int              // Duration selected by user in minutes
+  status                InterviewStatus  @default(IN_PROGRESS)
+  startTime             DateTime
+  endTime               DateTime?
+  createdAt             DateTime         @default(now())
+
+  // Relations
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  popularInterview      PopularInterview @relation(fields: [popularInterviewId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([popularInterviewId])
+  @@index([status])
 }
