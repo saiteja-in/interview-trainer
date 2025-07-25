@@ -11,29 +11,18 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
   Clock,
   Target,
-  BookOpen,
-  Users,
-  Star,
   Play,
   CheckCircle2,
-  Lightbulb,
-  TrendingUp,
-  Award,
   Zap,
   Brain,
-  MessageSquare,
-  Video,
   BarChart3,
   Shield,
-  Sparkles,
-  Timer,
+  BookOpen,
   Gauge,
-  Info,
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -187,7 +176,7 @@ export default async function PopularInterviewPage({
   const CategoryIcon = categoryInfo.icon;
 
   return (
-    <div className="space-y-6">
+    <div className="container space-y-6">
       {/* Navigation */}
       <div className="flex items-center gap-4">
         <Link href="/interview/popular">
@@ -199,344 +188,73 @@ export default async function PopularInterviewPage({
       </div>
 
       {/* Header Section */}
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="xl:col-span-2">
-          <Card className="p-6 lg:p-8">
-            <div className="flex flex-col sm:flex-row items-start gap-6">
-              <div
-                className={cn(
-                  "flex items-center justify-center w-16 h-16 rounded-xl shadow-lg shrink-0",
-                  categoryInfo.bgColor
-                )}
-              >
-                <CategoryIcon
-                  className={cn("h-8 w-8", categoryInfo.iconColor)}
-                />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-3 mb-4">
-                  <Badge variant="outline" className={categoryInfo.color}>
-                    {interview.category}
-                  </Badge>
-                  <Badge variant="outline" className={difficultyInfo.color}>
-                    <DifficultyIcon className="h-3 w-3 mr-1" />
-                    {interview.difficulty}
-                  </Badge>
-                </div>
-
-                <h1 className="text-2xl lg:text-3xl font-bold mb-4 leading-tight">
-                  {interview.title}
-                </h1>
-
-                <p className="text-base lg:text-lg text-muted-foreground leading-relaxed mb-6">
-                  {interview.description}
-                </p>
-
-                <div className="flex flex-wrap items-center gap-4 lg:gap-6 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span>{interview.duration} minutes</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Target className="h-4 w-4" />
-                    <span>Targeted Practice</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Brain className="h-4 w-4" />
-                    <span>AI-Powered</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        <div className="xl:col-span-1">
-          <Card className="xl:sticky xl:top-6">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Play className="h-5 w-5 text-primary" />
-                <CardTitle>Start Interview</CardTitle>
-              </div>
-              <CardDescription>
-                Configure your practice session
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <InterviewSetupForm
-                interviewId={interview.id}
-                defaultDuration={interview.duration}
-                interviewTitle={interview.title}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-3">
-        {/* Main Content */}
-        <div className="xl:col-span-2 space-y-6">
-            {/* Key Features */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-primary" />
-                  <CardTitle>What Makes This Special</CardTitle>
-                </div>
-                <CardDescription>
-                  Experience our advanced interview simulation technology
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <div
-                    className={cn(
-                      "flex items-start gap-4 p-4 rounded-lg border",
-                      "bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800"
-                    )}
-                  >
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500 text-white">
-                      <Brain className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                        AI-Powered Questions
-                      </h3>
-                      <p className="text-sm text-blue-700 dark:text-blue-300">
-                        Dynamic questions tailored to your skill level and topic
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    className={cn(
-                      "flex items-start gap-4 p-4 rounded-lg border",
-                      "bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800"
-                    )}
-                  >
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-500 text-white">
-                      <MessageSquare className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-green-900 dark:text-green-100 mb-1">
-                        Real-time Feedback
-                      </h3>
-                      <p className="text-sm text-green-700 dark:text-green-300">
-                        Instant analysis with improvement suggestions
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    className={cn(
-                      "flex items-start gap-4 p-4 rounded-lg border",
-                      "bg-purple-50 border-purple-200 dark:bg-purple-950 dark:border-purple-800"
-                    )}
-                  >
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-500 text-white">
-                      <Video className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-purple-900 dark:text-purple-100 mb-1">
-                        Video Recording
-                      </h3>
-                      <p className="text-sm text-purple-700 dark:text-purple-300">
-                        Practice with video to improve confidence
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    className={cn(
-                      "flex items-start gap-4 p-4 rounded-lg border",
-                      "bg-orange-50 border-orange-200 dark:bg-orange-950 dark:border-orange-800"
-                    )}
-                  >
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-orange-500 text-white">
-                      <BarChart3 className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-1">
-                        Performance Analytics
-                      </h3>
-                      <p className="text-sm text-orange-700 dark:text-orange-300">
-                        Track progress and identify improvements
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* How It Works */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Info className="h-5 w-5 text-primary" />
-                  <CardTitle>How It Works</CardTitle>
-                </div>
-                <CardDescription>
-                  Your step-by-step interview experience
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {[
-                    {
-                      step: 1,
-                      title: "Setup & Configuration",
-                      description:
-                        "Choose duration, enable video recording, and set preferences",
-                    },
-                    {
-                      step: 2,
-                      title: "Interactive Interview",
-                      description: `Answer AI-generated questions specific to ${interview.category.toLowerCase()}`,
-                    },
-                    {
-                      step: 3,
-                      title: "Instant Analysis",
-                      description:
-                        "Receive detailed feedback on performance and skills",
-                    },
-                    {
-                      step: 4,
-                      title: "Improvement Plan",
-                      description:
-                        "Get personalized recommendations and resources",
-                    },
-                  ].map((item) => (
-                    <div key={item.step} className="flex items-start gap-4">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold">
-                        {item.step}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">{item.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Difficulty Level */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-primary" />
-                  <CardTitle>
-                    Difficulty Level: {interview.difficulty}
-                  </CardTitle>
-                </div>
-                <CardDescription>{difficultyInfo.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div
-                  className={cn("p-6 rounded-xl border", difficultyInfo.color)}
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <DifficultyIcon
-                      className={cn("h-6 w-6", difficultyInfo.iconColor)}
-                    />
-                    <div>
-                      <h3 className="font-bold text-lg">
-                        {interview.difficulty} Level
-                      </h3>
-                      <p className="text-sm opacity-80">
-                        {difficultyInfo.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2 text-sm">
-                    {[
-                      "Topic-focused questions",
-                      "Appropriate complexity",
-                      "Skill-level matching",
-                      "Progressive difficulty",
-                    ].map((feature) => (
-                      <div key={feature} className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4" />
-                        <span>{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <div
+            className={cn(
+              "flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg",
+              categoryInfo.bgColor
+            )}
+          >
+            <CategoryIcon
+              className={cn("h-10 w-10", categoryInfo.iconColor)}
+            />
           </div>
+        </div>
 
-          {/* Sidebar */}
-          <div className="xl:col-span-1 space-y-6">
-            {/* Quick Stats */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-primary" />
-                  <CardTitle>Quick Stats</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div
-                  className={cn(
-                    "flex items-center justify-between p-3 rounded-lg",
-                    "bg-blue-50 dark:bg-blue-950"
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <span className="text-sm font-medium">Duration</span>
-                  </div>
-                  <span className="font-bold text-blue-700 dark:text-blue-300">
-                    {interview.duration}m
-                  </span>
-                </div>
+        <div className="flex justify-center gap-3">
+          <Badge variant="outline" className={categoryInfo.color}>
+            {interview.category}
+          </Badge>
+          <Badge variant="outline" className={difficultyInfo.color}>
+            <DifficultyIcon className="h-3 w-3 mr-1" />
+            {interview.difficulty}
+          </Badge>
+        </div>
 
-                <div
-                  className={cn(
-                    "flex items-center justify-between p-3 rounded-lg",
-                    categoryInfo.bgColor
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <CategoryIcon
-                      className={cn("h-4 w-4", categoryInfo.iconColor)}
-                    />
-                    <span className="text-sm font-medium">Category</span>
-                  </div>
-                  <span className={cn("font-bold", categoryInfo.textColor)}>
-                    {interview.category}
-                  </span>
-                </div>
+        <h1 className="text-3xl font-bold leading-tight">
+          {interview.title}
+        </h1>
 
-                <div
-                  className={cn(
-                    "flex items-center justify-between p-3 rounded-lg",
-                    difficultyInfo.bgColor
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <DifficultyIcon
-                      className={cn("h-4 w-4", difficultyInfo.iconColor)}
-                    />
-                    <span className="text-sm font-medium">Level</span>
-                  </div>
-                  <span className={cn("font-bold", difficultyInfo.textColor)}>
-                    {interview.difficulty}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          {interview.description}
+        </p>
 
-            {/* Pro Tips */}
-           
+        <div className="flex justify-center gap-6 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            <span>{interview.duration} minutes</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            <span>Targeted Practice</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            <span>AI-Powered</span>
           </div>
         </div>
       </div>
 
+      {/* Interview Setup Form */}
+      <Card className=" mx-auto">
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center gap-2">
+            <Play className="h-5 w-5 text-primary" />
+            Configure Your Interview
+          </CardTitle>
+          <CardDescription>
+            Set up your personalized practice session
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <InterviewSetupForm
+            interviewId={interview.id}
+            defaultDuration={interview.duration}
+            interviewTitle={interview.title}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 }
