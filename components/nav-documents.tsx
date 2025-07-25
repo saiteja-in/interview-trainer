@@ -65,7 +65,7 @@ import { usePathname } from "next/navigation";
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith("/interview/popular")}>
-                  <Link href="/interview/new?type=popular">
+                  <Link href="/interview/popular">
                     <BarChart className="h-4 w-4" />
                     <span>Popular Interviews</span>
                   </Link>
@@ -74,7 +74,7 @@ import { usePathname } from "next/navigation";
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith("/interview/resume")}>
                   <Link href="/interview/resume">
-                    <Upload className="h-4 w-4" />
+                    <Upload className="h-4 w-4" />  
                     <span>Resume-Based</span>
                   </Link>
                 </SidebarMenuButton>
