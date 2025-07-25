@@ -12,6 +12,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@ai-sdk/google": "^1.2.22",
     "@auth/prisma-adapter": "^2.7.0",
     "@aws-sdk/client-s3": "^3.732.0",
     "@aws-sdk/s3-request-presigner": "^3.732.0",
@@ -48,6 +49,7 @@
     "@trpc/server": "^11.4.3",
     "@trpc/tanstack-react-query": "^11.4.3",
     "@types/tesseract.js": "^2.0.0",
+    "ai": "^4.3.19",
     "axios": "^1.8.0",
     "base64-encode-file": "^1.0.7",
     "bcrypt": "^5.1.1",
@@ -62,6 +64,7 @@
     "next-auth": "^5.0.0-beta.22",
     "next-themes": "^0.3.0",
     "nextjs-toploader": "^3.7.15",
+    "openai": "^5.10.2",
     "pdf-to-img": "^4.3.0",
     "pdfjs-dist": "^3.6.172",
     "react": "^18",
@@ -73,6 +76,8 @@
     "react-webcam": "^7.2.0",
     "recharts": "^2.15.4",
     "resend": "^4.0.0",
+    "retell-client-js-sdk": "^2.0.0",
+    "retell-sdk": "^4.19.0",
     "server-only": "^0.0.1",
     "sonner": "^2.0.5",
     "tailwind-merge": "^2.5.3",

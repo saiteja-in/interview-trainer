@@ -21,7 +21,7 @@ import {
   ChevronRight,
   Info,
 } from "lucide-react";
-import { createPopularInterviewSession } from "@/actions/popular-interviews";
+import { createPopularInterviewSession, createPopularInterviewSessionWithQuestions } from "@/actions/popular-interviews";
 import { getInterviewers } from "@/actions/interviewers";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -106,21 +106,67 @@ export function InterviewSetupForm({
   const handleStartInterview = () => {
     startTransition(async () => {
       try {
-        const result = await createPopularInterviewSession({
+        // First, generate AI questions
+        toast.loading("Generating interview questions...");
+        
+        const questionResponse = await fetch('/api/generate-questions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: interviewTitle,
+            objective: `Conduct a comprehensive interview for ${interviewTitle}`,
+            number: questionCount,
+            context: `This is a technical interview focusing on ${interviewTitle}. The interview should assess the candidate's technical skills, problem-solving abilities, and relevant experience in this domain.`
+          }),
+        });
+
+        let generatedQuestions: string[] = [];
+        
+        if (questionResponse.ok) {
+          const questionData = await questionResponse.json();
+          console.log("Generated questions response:", questionData);
+          
+          try {
+            const parsedResponse = JSON.parse(questionData.response);
+            generatedQuestions = parsedResponse.questions?.map((q: any) => q.question) || [];
+            console.log("Parsed questions:", generatedQuestions);
+          } catch (parseError) {
+            console.error("Error parsing questions:", parseError);
+          }
+        }
+
+        // Fallback questions if AI generation fails
+        if (generatedQuestions.length === 0) {
+          generatedQuestions = Array.from({ length: questionCount }, (_, i) => 
+            `Tell me about your experience with ${interviewTitle} and how you would approach a challenging problem in this area. (Question ${i + 1})`
+          );
+        }
+
+        toast.dismiss();
+        toast.loading("Creating interview session...");
+
+        // Create session with generated questions
+        const result = await createPopularInterviewSessionWithQuestions({
           popularInterviewId: interviewId,
           questionCount,
           duration,
           interviewerId: selectedInterviewer || undefined,
+          questions: generatedQuestions,
         });
 
         if (result.success && result.data) {
+          toast.dismiss();
           toast.success("Interview session started!");
-          router.push(`/interview/popular/session/${result.data.id}`);
+          router.push(`/call/${result.data.id}`);
         } else {
+          toast.dismiss();
           toast.error(result.error || "Failed to start interview");
         }
       } catch (error) {
         console.error("Error starting interview:", error);
+        toast.dismiss();
         toast.error("Something went wrong. Please try again.");
       }
     });

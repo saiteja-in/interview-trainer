@@ -27,22 +27,22 @@ enum InterviewStatus {
 }
 
 model User {
-  id              String         @id @default(cuid())
-  name            String?
-  email           String?        @unique
-  emailVerified   DateTime?
-  image           String?
-  role            UserRole       @default(USER)
-  jobRole         JobRole?
-  password        String?
-  resumeUrl       String?        // URL to the resume stored on AWS S3
-  extractedText   String?        @db.Text  // Added: full raw text extracted from the resume
-  skills          String[]
-  videos          Video[]
-  interviews      Interview[]
-  accounts        Account[]
-  resumeJobs      ResumeJob[]
-  agents          Agent[]
+  id                       String                    @id @default(cuid())
+  name                     String?
+  email                    String?                   @unique
+  emailVerified            DateTime?
+  image                    String?
+  role                     UserRole                  @default(USER)
+  jobRole                  JobRole?
+  password                 String?
+  resumeUrl                String? // URL to the resume stored on AWS S3
+  extractedText            String?                   @db.Text // Added: full raw text extracted from the resume
+  skills                   String[]
+  videos                   Video[]
+  interviews               Interview[]
+  accounts                 Account[]
+  resumeJobs               ResumeJob[]
+  agents                   Agent[]
   popularInterviewSessions PopularInterviewSession[]
 }
 
@@ -57,18 +57,19 @@ model Agent {
 
   @@map("agents")
 }
+
 model Interview {
-  id          String              @id @default(cuid())
-  userId      String
-  role        JobRole
-  status      InterviewStatus     @default(IN_PROGRESS)
-  startTime   DateTime
-  endTime     DateTime?
-  duration    Int?
-  createdAt   DateTime            @default(now())
-  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  video       Video?
-  questions   InterviewQuestion[]
+  id        String              @id @default(cuid())
+  userId    String
+  role      JobRole
+  status    InterviewStatus     @default(IN_PROGRESS)
+  startTime DateTime
+  endTime   DateTime?
+  duration  Int?
+  createdAt DateTime            @default(now())
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video?
+  questions InterviewQuestion[]
 
   @@index([userId])
   @@index([status])
@@ -79,7 +80,7 @@ model Video {
   userId           String
   interviewId      String?    @unique
   videoUrl         String?
-  processingStatus String?    // "UPLOADING" | "PROCESSING" | "READY"
+  processingStatus String? // "UPLOADING" | "PROCESSING" | "READY"
   user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   interview        Interview? @relation(fields: [interviewId], references: [id], onDelete: Cascade)
 
@@ -88,38 +89,38 @@ model Video {
 }
 
 model Question {
-  id        String   @id @default(cuid())
-  role      JobRole
-  question  String
+  id         String              @id @default(cuid())
+  role       JobRole
+  question   String
   interviews InterviewQuestion[]
 }
 
 model InterviewQuestion {
-  id           String     @id @default(cuid())
-  interviewId  String
-  questionId   String
-  response     String?
-  startTime    DateTime?
-  endTime      DateTime?
-  
-  interview    Interview  @relation(fields: [interviewId], references: [id], onDelete: Cascade)
-  question     Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  interviewId String
+  questionId  String
+  response    String?
+  startTime   DateTime?
+  endTime     DateTime?
+
+  interview Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  question  Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@index([interviewId])
 }
 
 model Account {
-  id                String    @id @default(cuid())
+  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?   @db.Text
-  access_token      String?   @db.Text
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?   @db.Text
+  id_token          String? @db.Text
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -148,11 +149,11 @@ model PasswordResetToken {
 // Updated model to store resume jobs associated with a User
 model ResumeJob {
   id     String   @id @default(cuid())
-  title  String   // Title extracted from the resume
+  title  String // Title extracted from the resume
   skills String[] // Array of skills extracted from the resume
-  
+
   userId String
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -161,17 +162,24 @@ model ResumeJob {
 model Interviewer {
   id          String   @id @default(cuid())
   name        String
-  image       String
-  description String   @db.Text
+  agentId     String?  @unique // Retell agent ID
+  image       String?
+  description String?  @db.Text
   specialties String[] // Areas of expertise
+  rapport     Int? // Interviewer personality traits
+  exploration Int?
+  empathy     Int?
+  speed       Int?
+  audio       String? // Audio file name
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // Relations
-  sessions    PopularInterviewSession[]
+  sessions PopularInterviewSession[]
 
   @@index([isActive])
+  @@index([agentId])
 }
 
 // Model for popular interview topics
@@ -179,15 +187,15 @@ model PopularInterview {
   id          String   @id @default(cuid())
   title       String
   description String   @db.Text
-  difficulty  String   // "Beginner", "Intermediate", "Advanced"
-  duration    Int      // Default duration in minutes
-  category    String   // "Data Structures", "System Design", "DevOps", etc.
+  difficulty  String // "Beginner", "Intermediate", "Advanced"
+  duration    Int // Default duration in minutes
+  category    String // "Data Structures", "System Design", "DevOps", etc.
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // Relations
-  sessions    PopularInterviewSession[]
+  sessions PopularInterviewSession[]
 
   @@index([category])
   @@index([difficulty])
@@ -195,22 +203,23 @@ model PopularInterview {
 
 // Model to track user sessions for popular interviews
 model PopularInterviewSession {
-  id                    String           @id @default(cuid())
-  userId                String
-  popularInterviewId    String
-  interviewerId         String?          // Optional interviewer selection
-  questionCount         Int              // Number of questions selected by user
-  duration              Int              // Duration selected by user in minutes
-  status                InterviewStatus  @default(IN_PROGRESS)
-  startTime             DateTime
-  endTime               DateTime?
-  createdAt             DateTime         @default(now())
+  id                 String          @id @default(cuid())
+  userId             String
+  popularInterviewId String
+  interviewerId      String? // Optional interviewer selection
+  questionCount      Int // Number of questions selected by user
+  duration           Int // Duration selected by user in minutes
+  questions          String[] // AI-generated questions for this session
+  status             InterviewStatus @default(IN_PROGRESS)
+  startTime          DateTime
+  endTime            DateTime?
+  createdAt          DateTime        @default(now())
 
   // Relations
-  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  popularInterview      PopularInterview @relation(fields: [popularInterviewId], references: [id], onDelete: Cascade)
-  interviewer           Interviewer?     @relation(fields: [interviewerId], references: [id], onDelete: SetNull)
-  responses             InterviewResponse[]
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  popularInterview PopularInterview    @relation(fields: [popularInterviewId], references: [id], onDelete: Cascade)
+  interviewer      Interviewer?        @relation(fields: [interviewerId], references: [id], onDelete: SetNull)
+  responses        InterviewResponse[]
 
   @@index([userId])
   @@index([popularInterviewId])
@@ -220,16 +229,16 @@ model PopularInterviewSession {
 
 // Model to store interview responses
 model InterviewResponse {
-  id                    String                    @id @default(cuid())
-  sessionId             String
-  questionText          String                    @db.Text
-  userResponse          String?                   @db.Text
-  aiResponse            String?                   @db.Text
-  responseTime          Int?                      // Time taken to respond in seconds
-  createdAt             DateTime                  @default(now())
+  id           String   @id @default(cuid())
+  sessionId    String
+  questionText String   @db.Text
+  userResponse String?  @db.Text
+  aiResponse   String?  @db.Text
+  responseTime Int? // Time taken to respond in seconds
+  createdAt    DateTime @default(now())
 
   // Relations
-  session               PopularInterviewSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  session PopularInterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([sessionId])
 }

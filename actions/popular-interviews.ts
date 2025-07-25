@@ -95,6 +95,69 @@ export async function createPopularInterviewSession({
   }
 }
 
+export async function createPopularInterviewSessionWithQuestions({
+  popularInterviewId,
+  questionCount,
+  duration,
+  interviewerId,
+  questions,
+}: {
+  popularInterviewId: string;
+  questionCount: number;
+  duration: number;
+  interviewerId?: string;
+  questions: string[];
+}) {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    // Verify the popular interview exists
+    const popularInterview = await db.popularInterview.findUnique({
+      where: { id: popularInterviewId, isActive: true },
+    });
+
+    if (!popularInterview) {
+      return { success: false, error: "Interview not found" };
+    }
+
+    // Verify interviewer exists if provided
+    if (interviewerId) {
+      const interviewer = await db.interviewer.findUnique({
+        where: { id: interviewerId, isActive: true },
+      });
+
+      if (!interviewer) {
+        return { success: false, error: "Interviewer not found" };
+      }
+    }
+
+    const session = await db.popularInterviewSession.create({
+      data: {
+        userId: user.id,
+        popularInterviewId,
+        interviewerId,
+        questionCount,
+        duration,
+        questions, // Store the AI-generated questions
+        startTime: new Date(),
+      },
+      include: {
+        popularInterview: true,
+        interviewer: true,
+      },
+    });
+
+    revalidatePath("/dashboard");
+    return { success: true, data: session };
+  } catch (error) {
+    console.error("Error creating popular interview session:", error);
+    return { success: false, error: "Failed to start interview session" };
+  }
+}
+
 export async function getUserPopularInterviewStats() {
   try {
     const user = await currentUser();
@@ -218,3 +281,6 @@ export async function saveInterviewResponse({
     return { success: false, error: "Failed to save response" };
   }
 }
+
+// Alias for getPopularInterviewSession to match the expected function name
+export const getInterviewSessionById = getPopularInterviewSession;
