@@ -472,7 +472,7 @@ export function InterviewSetupForm({
                   <button
                     key={count}
                     className={cn(
-                      "p-3 rounded-lg border-2 transition-all text-sm font-medium",
+                      "p-4 rounded-lg border-2 transition-all text-center",
                       questionCount === count
                         ? "border-primary bg-primary/5 text-primary"
                         : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
@@ -496,7 +496,7 @@ export function InterviewSetupForm({
                   <button
                     key={time}
                     className={cn(
-                      "p-3 rounded-lg border-2 transition-all text-sm font-medium",
+                      "p-4 rounded-lg border-2 transition-all text-center",
                       duration === time
                         ? "border-primary bg-primary/5 text-primary"
                         : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
