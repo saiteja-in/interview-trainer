@@ -118,60 +118,60 @@ const popularInterviews = [
   }
 ];
 
-const interviewers = [
-  {
-    name: "Alex Chen",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    description: "Senior Software Engineer with 8+ years of experience in full-stack development and system design.",
-    specialties: ["System Design", "Web Development", "Algorithms", "Data Structures"]
-  },
-  {
-    name: "Sarah Johnson",
-    image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-    description: "DevOps Engineer and Cloud Architect specializing in scalable infrastructure and automation.",
-    specialties: ["DevOps", "Cloud Architecture", "Containerization", "CI/CD"]
-  },
-  {
-    name: "Michael Rodriguez",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    description: "Database Expert and Backend Engineer with expertise in performance optimization and data modeling.",
-    specialties: ["Databases", "Backend Development", "Performance Optimization", "SQL"]
-  },
-  {
-    name: "Emily Davis",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    description: "Security Engineer focused on web application security, penetration testing, and secure coding practices.",
-    specialties: ["Security", "Web Security", "Penetration Testing", "Secure Coding"]
-  },
-  {
-    name: "David Kim",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    description: "Frontend Architect with deep knowledge of modern JavaScript frameworks and performance optimization.",
-    specialties: ["Frontend Development", "JavaScript", "React", "Performance Optimization"]
-  }
-];
+// const interviewers = [
+//   {
+//     name: "Alex Chen",
+//     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+//     description: "Senior Software Engineer with 8+ years of experience in full-stack development and system design.",
+//     specialties: ["System Design", "Web Development", "Algorithms", "Data Structures"]
+//   },
+//   {
+//     name: "Sarah Johnson",
+//     image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+//     description: "DevOps Engineer and Cloud Architect specializing in scalable infrastructure and automation.",
+//     specialties: ["DevOps", "Cloud Architecture", "Containerization", "CI/CD"]
+//   },
+//   {
+//     name: "Michael Rodriguez",
+//     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+//     description: "Database Expert and Backend Engineer with expertise in performance optimization and data modeling.",
+//     specialties: ["Databases", "Backend Development", "Performance Optimization", "SQL"]
+//   },
+//   {
+//     name: "Emily Davis",
+//     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+//     description: "Security Engineer focused on web application security, penetration testing, and secure coding practices.",
+//     specialties: ["Security", "Web Security", "Penetration Testing", "Secure Coding"]
+//   },
+//   {
+//     name: "David Kim",
+//     image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+//     description: "Frontend Architect with deep knowledge of modern JavaScript frameworks and performance optimization.",
+//     specialties: ["Frontend Development", "JavaScript", "React", "Performance Optimization"]
+//   }
+// ];
 
 async function main() {
   console.log('Seeding popular interviews...');
   
   // Create interviewers first
-  for (const interviewer of interviewers) {
-    // Check if interviewer already exists
-    const existingInterviewer = await db.interviewer.findFirst({
-      where: { name: interviewer.name }
-    });
+  // for (const interviewer of interviewers) {
+  //   // Check if interviewer already exists
+  //   const existingInterviewer = await db.interviewer.findFirst({
+  //     where: { name: interviewer.name }
+  //   });
     
-    if (!existingInterviewer) {
-      await db.interviewer.create({
-        data: interviewer,
-      });
-    } else {
-      await db.interviewer.update({
-        where: { id: existingInterviewer.id },
-        data: interviewer,
-      });
-    }
-  }
+  //   if (!existingInterviewer) {
+  //     await db.interviewer.create({
+  //       data: interviewer,
+  //     });
+  //   } else {
+  //     await db.interviewer.update({
+  //       where: { id: existingInterviewer.id },
+  //       data: interviewer,
+  //     });
+  //   }
+  // }
   
   // Create popular interviews
   for (const interview of popularInterviews) {
