@@ -1,121 +1,137 @@
-import { db } from '@/lib/db';
-import { PrismaClient } from '@prisma/client';
+import { db } from "@/lib/db";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 const popularInterviews = [
   {
     title: "Stacks vs Queues",
-    description: "Master the fundamental differences between stacks and queues, their implementations, and real-world applications in software development.",
+    description:
+      "Master the fundamental differences between stacks and queues, their implementations, and real-world applications in software development.",
+    category: "Data Structures",
     difficulty: "Beginner",
     duration: 20,
-    category: "Data Structures"
   },
   {
     title: "Hash Tables Deep Dive",
-    description: "Explore hash table implementations, collision handling strategies, and performance optimization techniques.",
+    description:
+      "Explore hash table implementations, collision handling strategies, and performance optimization techniques.",
+    category: "Data Structures",
     difficulty: "Intermediate",
     duration: 30,
-    category: "Data Structures"
   },
   {
     title: "REST API 101",
-    description: "Learn the principles of RESTful API design, HTTP methods, status codes, and best practices for building scalable APIs.",
+    description:
+      "Learn the principles of RESTful API design, HTTP methods, status codes, and best practices for building scalable APIs.",
+    category: "Web Development",
     difficulty: "Beginner",
     duration: 25,
-    category: "Web Development"
   },
   {
     title: "Processes vs Threads",
-    description: "Understand the differences between processes and threads, their use cases, and synchronization mechanisms.",
+    description:
+      "Understand the differences between processes and threads, their use cases, and synchronization mechanisms.",
+    category: "Operating Systems",
     difficulty: "Intermediate",
     duration: 30,
-    category: "Operating Systems"
   },
   {
     title: "Low Level Design",
-    description: "Practice designing scalable systems with proper object-oriented principles, design patterns, and architecture decisions.",
+    description:
+      "Practice designing scalable systems with proper object-oriented principles, design patterns, and architecture decisions.",
+    category: "System Design",
     difficulty: "Advanced",
     duration: 45,
-    category: "System Design"
   },
   {
     title: "DevOps Fundamentals",
-    description: "Cover CI/CD pipelines, containerization, infrastructure as code, and monitoring in modern DevOps practices.",
+    description:
+      "Cover CI/CD pipelines, containerization, infrastructure as code, and monitoring in modern DevOps practices.",
+    category: "DevOps",
     difficulty: "Intermediate",
     duration: 35,
-    category: "DevOps"
   },
   {
     title: "Binary Search Trees",
-    description: "Deep dive into BST operations, balancing techniques, and tree traversal algorithms with practical implementations.",
+    description:
+      "Deep dive into BST operations, balancing techniques, and tree traversal algorithms with practical implementations.",
+    category: "Data Structures",
     difficulty: "Intermediate",
     duration: 30,
-    category: "Data Structures"
   },
   {
     title: "Database Indexing",
-    description: "Learn about database indexing strategies, B-trees, query optimization, and performance tuning techniques.",
+    description:
+      "Learn about database indexing strategies, B-trees, query optimization, and performance tuning techniques.",
+    category: "Databases",
     difficulty: "Advanced",
     duration: 40,
-    category: "Databases"
   },
   {
     title: "Microservices Architecture",
-    description: "Explore microservices design patterns, service communication, data consistency, and deployment strategies.",
+    description:
+      "Explore microservices design patterns, service communication, data consistency, and deployment strategies.",
+    category: "System Design",
     difficulty: "Advanced",
     duration: 50,
-    category: "System Design"
   },
   {
     title: "JavaScript Closures",
-    description: "Master JavaScript closures, scope chain, lexical environment, and practical applications in modern development.",
+    description:
+      "Master JavaScript closures, scope chain, lexical environment, and practical applications in modern development.",
+    category: "Web Development",
     difficulty: "Intermediate",
     duration: 25,
-    category: "Web Development"
   },
   {
     title: "SQL Query Optimization",
-    description: "Learn advanced SQL techniques, query planning, index usage, and performance optimization strategies.",
+    description:
+      "Learn advanced SQL techniques, query planning, index usage, and performance optimization strategies.",
+    category: "Databases",
     difficulty: "Advanced",
     duration: 35,
-    category: "Databases"
   },
   {
     title: "Docker Containerization",
-    description: "Understand Docker fundamentals, container orchestration, multi-stage builds, and deployment best practices.",
+    description:
+      "Understand Docker fundamentals, container orchestration, multi-stage builds, and deployment best practices.",
+    category: "DevOps",
     difficulty: "Intermediate",
     duration: 30,
-    category: "DevOps"
   },
   {
     title: "Graph Algorithms",
-    description: "Explore graph representations, traversal algorithms (BFS/DFS), shortest path algorithms, and practical applications.",
+    description:
+      "Explore graph representations, traversal algorithms (BFS/DFS), shortest path algorithms, and practical applications.",
+    category: "Algorithms",
     difficulty: "Advanced",
     duration: 40,
-    category: "Algorithms"
   },
   {
     title: "Web Security Basics",
-    description: "Cover common web vulnerabilities, authentication mechanisms, HTTPS, and security best practices for web applications.",
+    description:
+      "Cover common web vulnerabilities, authentication mechanisms, HTTPS, and security best practices for web applications.",
+    category: "Security",
     difficulty: "Intermediate",
     duration: 30,
-    category: "Security"
   },
   {
     title: "React Component Patterns",
-    description: "Learn advanced React patterns, hooks, state management, and performance optimization techniques.",
+    description:
+      "Learn advanced React patterns, hooks, state management, and performance optimization techniques.",
+    category: "Web Development",
     difficulty: "Intermediate",
     duration: 35,
-    category: "Web Development"
   },
   {
     title: "System Design Scalability",
-    description: "Design highly scalable systems covering load balancing, caching strategies, database sharding, and CDN usage.",
+    description:
+      "Design highly scalable systems covering load balancing, caching strategies, database sharding, and CDN usage.",
+    category: "System Design",
     difficulty: "Advanced",
     duration: 60,
-    category: "System Design"
-  }
+  },
 ];
 
 // const interviewers = [
@@ -152,15 +168,15 @@ const popularInterviews = [
 // ];
 
 async function main() {
-  console.log('Seeding popular interviews...');
-  
+  console.log("Seeding popular interviews...");
+
   // Create interviewers first
   // for (const interviewer of interviewers) {
   //   // Check if interviewer already exists
   //   const existingInterviewer = await db.interviewer.findFirst({
   //     where: { name: interviewer.name }
   //   });
-    
+
   //   if (!existingInterviewer) {
   //     await db.interviewer.create({
   //       data: interviewer,
@@ -172,14 +188,14 @@ async function main() {
   //     });
   //   }
   // }
-  
+
   // Create popular interviews
   for (const interview of popularInterviews) {
     // Check if interview already exists
     const existingInterview = await db.popularInterview.findFirst({
-      where: { title: interview.title }
+      where: { title: interview.title },
     });
-    
+
     if (!existingInterview) {
       await db.popularInterview.create({
         data: interview,
@@ -191,8 +207,8 @@ async function main() {
       });
     }
   }
-  
-  console.log('Seeding completed!');
+
+  console.log("Seeding completed!");
 }
 
 main()

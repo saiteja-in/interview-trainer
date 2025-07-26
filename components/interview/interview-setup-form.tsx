@@ -28,7 +28,6 @@ import Image from "next/image";
 
 interface InterviewSetupFormProps {
   interviewId: string;
-  defaultDuration: number;
   interviewTitle: string;
 }
 
@@ -48,22 +47,49 @@ const questionOptions = [
 ];
 
 const durationOptions = [
+  { value: 5, label: "5 min" },
+  { value: 10, label: "10 min" },
   { value: 15, label: "15 min" },
-  { value: 20, label: "20 min" },
-  { value: 30, label: "30 min" },
-  { value: 45, label: "45 min" },
-  { value: 60, label: "60 min" },
+  { value: "custom", label: "Custom" },
+];
+
+const difficultyOptions = [
+  { 
+    value: "beginner", 
+    label: "Beginner", 
+    description: "Basic concepts and fundamentals",
+    color: "bg-green-50 text-green-700 border-green-200"
+  },
+  { 
+    value: "intermediate", 
+    label: "Intermediate", 
+    description: "Applied knowledge and problem-solving",
+    color: "bg-yellow-50 text-yellow-700 border-yellow-200"
+  },
+  { 
+    value: "advanced", 
+    label: "Advanced", 
+    description: "Complex scenarios and expert-level topics",
+    color: "bg-red-50 text-red-700 border-red-200"
+  },
+  { 
+    value: "mixed", 
+    label: "Mixed", 
+    description: "Combination of all difficulty levels",
+    color: "bg-purple-50 text-purple-700 border-purple-200"
+  },
 ];
 
 export function InterviewSetupForm({
   interviewId,
-  defaultDuration,
   interviewTitle,
 }: InterviewSetupFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [questionCount, setQuestionCount] = useState(5);
-  const [duration, setDuration] = useState(defaultDuration);
+  const [duration, setDuration] = useState<number | string>(10);
+  const [customDuration, setCustomDuration] = useState(20);
+  const [difficulty, setDifficulty] = useState("intermediate");
   const [selectedInterviewer, setSelectedInterviewer] = useState<string>("");
   const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
   const [loadingInterviewers, setLoadingInterviewers] = useState(true);
@@ -109,6 +135,16 @@ export function InterviewSetupForm({
         // First, generate AI questions
         toast.loading("Generating interview questions...");
         
+        const finalDuration = duration === "custom" ? customDuration : Number(duration);
+        
+        // Create difficulty-specific context
+        const difficultyContext = {
+          beginner: "Focus on fundamental concepts, basic definitions, and simple problem-solving scenarios. Questions should be accessible to someone new to the topic.",
+          intermediate: "Include applied knowledge, practical scenarios, and moderate problem-solving challenges. Assume some experience with the topic.",
+          advanced: "Present complex scenarios, edge cases, and expert-level challenges. Questions should test deep understanding and advanced problem-solving skills.",
+          mixed: "Include a balanced mix of beginner, intermediate, and advanced questions to comprehensively assess knowledge across all levels."
+        };
+
         const questionResponse = await fetch('/api/generate-questions', {
           method: 'POST',
           headers: {
@@ -116,9 +152,9 @@ export function InterviewSetupForm({
           },
           body: JSON.stringify({
             name: interviewTitle,
-            objective: `Conduct a comprehensive interview for ${interviewTitle}`,
+            objective: `Conduct a ${difficulty} level interview for ${interviewTitle}`,
             number: questionCount,
-            context: `This is a technical interview focusing on ${interviewTitle}. The interview should assess the candidate's technical skills, problem-solving abilities, and relevant experience in this domain.`
+            context: `This is a technical interview focusing on ${interviewTitle} at ${difficulty} difficulty level. ${difficultyContext[difficulty as keyof typeof difficultyContext]} The interview should assess the candidate's technical skills, problem-solving abilities, and relevant experience in this domain.`
           }),
         });
 
@@ -151,7 +187,7 @@ export function InterviewSetupForm({
         const result = await createPopularInterviewSessionWithQuestions({
           popularInterviewId: interviewId,
           questionCount,
-          duration,
+          duration: finalDuration,
           interviewerId: selectedInterviewer || undefined,
           questions: generatedQuestions,
         });
@@ -316,49 +352,102 @@ export function InterviewSetupForm({
       </div>
 
       {/* Configuration Grid */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* Question Count Selection */}
-        <div className="*:not-first:mt-2">
-          <Label htmlFor="questions-select" className="text-sm font-medium">
-            Questions
-          </Label>
-          <Select
-            value={questionCount.toString()}
-            onValueChange={(value) => setQuestionCount(parseInt(value))}
-          >
-            <SelectTrigger id="questions-select">
-              <SelectValue placeholder="Select number of questions" />
-            </SelectTrigger>
-            <SelectContent>
-              {questionOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value.toString()}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="space-y-4">
+        {/* Question Count and Duration Row */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Question Count Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="questions-select" className="text-sm font-medium">
+              Questions
+            </Label>
+            <Select
+              value={questionCount.toString()}
+              onValueChange={(value) => setQuestionCount(parseInt(value))}
+            >
+              <SelectTrigger id="questions-select">
+                <SelectValue placeholder="Select number of questions" />
+              </SelectTrigger>
+              <SelectContent>
+                {questionOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value.toString()}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Duration Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="duration-select" className="text-sm font-medium">
+              Duration
+            </Label>
+            <Select
+              value={duration.toString()}
+              onValueChange={(value) => setDuration(value === "custom" ? "custom" : parseInt(value))}
+            >
+              <SelectTrigger id="duration-select">
+                <SelectValue placeholder="Select duration" />
+              </SelectTrigger>
+              <SelectContent>
+                {durationOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value.toString()}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        {/* Duration Selection */}
-        <div className="*:not-first:mt-2">
-          <Label htmlFor="duration-select" className="text-sm font-medium">
-            Duration
-          </Label>
-          <Select
-            value={duration.toString()}
-            onValueChange={(value) => setDuration(parseInt(value))}
-          >
-            <SelectTrigger id="duration-select">
-              <SelectValue placeholder="Select duration" />
-            </SelectTrigger>
-            <SelectContent>
-              {durationOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value.toString()}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Custom Duration Input */}
+        {duration === "custom" && (
+          <div className="space-y-2">
+            <Label htmlFor="custom-duration" className="text-sm font-medium">
+              Custom Duration (minutes)
+            </Label>
+            <div className="flex items-center gap-2">
+              <input
+                id="custom-duration"
+                type="number"
+                min="5"
+                max="120"
+                value={customDuration}
+                onChange={(e) => setCustomDuration(parseInt(e.target.value) || 20)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="Enter duration"
+              />
+              <span className="text-sm text-muted-foreground">min</span>
+            </div>
+          </div>
+        )}
+
+        {/* Difficulty Selection */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Difficulty Level</Label>
+          <div className="grid grid-cols-2 gap-2">
+            {difficultyOptions.map((option) => (
+              <div
+                key={option.value}
+                className={`cursor-pointer rounded-lg border-2 p-3 transition-all hover:shadow-sm ${
+                  difficulty === option.value
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                }`}
+                onClick={() => setDifficulty(option.value)}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <div
+                    className={`w-3 h-3 rounded-full ${
+                      difficulty === option.value ? "bg-primary" : "bg-muted"
+                    }`}
+                  />
+                  <span className="font-medium text-sm">{option.label}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">{option.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -405,11 +494,16 @@ export function InterviewSetupForm({
             <div className="font-medium text-right">{questionCount}</div>
 
             <div className="text-muted-foreground">Duration:</div>
-            <div className="font-medium text-right">{duration} min</div>
+            <div className="font-medium text-right">
+              {duration === "custom" ? customDuration : duration} min
+            </div>
+
+            <div className="text-muted-foreground">Difficulty:</div>
+            <div className="font-medium text-right capitalize">{difficulty}</div>
 
             <div className="text-muted-foreground">Per question:</div>
             <div className="font-medium text-right">
-              ~{Math.round(duration / questionCount)} min
+              ~{Math.round((duration === "custom" ? customDuration : Number(duration)) / questionCount)} min
             </div>
           </div>
         </CardContent>

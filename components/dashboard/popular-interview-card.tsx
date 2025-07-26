@@ -1,92 +1,172 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Clock, Users } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Code2,
+  Users,
+  Brain,
+  Target,
+  BookOpen,
+  Shield,
+  BarChart3,
+  Rocket,
+  Database,
+  Workflow,
+  Code,
+} from "lucide-react";
 import Link from "next/link";
+import React from "react";
 
 interface PopularInterviewCardProps {
   id: string;
   title: string;
   description: string;
-  difficulty: string;
-  duration: number;
   category: string;
-  completedCount?: number;
 }
 
-const difficultyColors = {
-  Beginner: "bg-green-50 text-green-700 border-green-200",
-  Intermediate: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  Advanced: "bg-red-50 text-red-700 border-red-200"
+const categoryConfig = {
+  "Data Structures": {
+    icon: Code,
+  },
+  "Web Development": {
+    icon: Code2,
+  },
+  "Operating Systems": {
+    icon: Shield,
+  },
+  "System Design": {
+    icon: Target,
+  },
+  DevOps: {
+    icon: Workflow,
+  },
+  Databases: {
+    icon: Database,
+  },
+  Security: {
+    icon: Shield,
+  },
+  Algorithms: {
+    icon: Brain,
+  },
+  "Software Engineering": {
+    icon: Target,
+  },
 };
 
-const categoryColors = {
-  "Data Structures": "bg-blue-50 text-blue-700 border-blue-200",
-  "Web Development": "bg-purple-50 text-purple-700 border-purple-200",
-  "Operating Systems": "bg-orange-50 text-orange-700 border-orange-200",
-  "System Design": "bg-indigo-50 text-indigo-700 border-indigo-200",
-  "DevOps": "bg-teal-50 text-teal-700 border-teal-200",
-  "Databases": "bg-cyan-50 text-cyan-700 border-cyan-200",
-  "Security": "bg-rose-50 text-rose-700 border-rose-200",
-  "Algorithms": "bg-violet-50 text-violet-700 border-violet-200",
-  "Software Engineering": "bg-emerald-50 text-emerald-700 border-emerald-200"
-};
+function GridPattern({
+  width,
+  height,
+  x,
+  y,
+  squares,
+  ...props
+}: React.ComponentProps<'svg'> & {
+  width: number;
+  height: number;
+  x: string;
+  y: string;
+  squares?: number[][];
+}) {
+  const patternId = React.useId();
+  return (
+    <svg aria-hidden="true" {...props}>
+      <defs>
+        <pattern
+          id={patternId}
+          width={width}
+          height={height}
+          patternUnits="userSpaceOnUse"
+          x={x}
+          y={y}
+        >
+          <path d={`M.5 ${height}V.5H${width}`} fill="none" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" strokeWidth={0} fill={`url(#${patternId})`} />
+      {squares && (
+        <svg x={x} y={y} className="overflow-visible">
+          {squares.map(([x, y], index) => (
+            <rect
+              strokeWidth="0"
+              key={index}
+              width={width + 1}
+              height={height + 1}
+              x={x * width}
+              y={y * height}
+            />
+          ))}
+        </svg>
+      )}
+    </svg>
+  );
+}
+
+function genRandomPattern(length?: number): number[][] {
+  length = length ?? 5;
+  return Array.from({ length }, () => [
+    Math.floor(Math.random() * 4) + 7, // random x between 7 and 10
+    Math.floor(Math.random() * 6) + 1, // random y between 1 and 6
+  ]);
+}
 
 export function PopularInterviewCard({
   id,
   title,
   description,
-  difficulty,
-  duration,
   category,
-  completedCount = 0
 }: PopularInterviewCardProps) {
+  const config =
+    categoryConfig[category as keyof typeof categoryConfig] ||
+    categoryConfig["Software Engineering"];
+  const IconComponent = config.icon;
+  const p = genRandomPattern();
+
   return (
     <Link href={`/interview/popular/${id}`}>
-      <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg shrink-0">
-              {title.charAt(0)}
-            </div>
-            <div className="flex flex-col gap-1">
-              <Badge 
-                variant="outline" 
-                className={`text-xs ${difficultyColors[difficulty as keyof typeof difficultyColors] || difficultyColors.Beginner}`}
-              >
-                {difficulty}
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className={`text-xs ${categoryColors[category as keyof typeof categoryColors] || categoryColors["Software Engineering"]}`}
-              >
-                {category}
-              </Badge>
-            </div>
+      <div className="relative overflow-hidden p-6 border border-dashed hover:bg-muted/50 transition-colors cursor-pointer group">
+        {/* Background Pattern */}
+        <div className="pointer-events-none absolute top-0 left-1/2 -mt-2 -ml-20 h-full w-full [mask-image:linear-gradient(white,transparent)]">
+          <div className="from-foreground/5 to-foreground/1 absolute inset-0 bg-gradient-to-r [mask-image:radial-gradient(farthest-side_at_top,white,transparent)] opacity-100">
+            <GridPattern
+              width={20}
+              height={20}
+              x="-12"
+              y="4"
+              squares={p}
+              className="fill-foreground/5 stroke-foreground/25 absolute inset-0 h-full w-full mix-blend-overlay"
+            />
           </div>
-          <CardTitle className="text-base font-semibold group-hover:text-primary transition-colors">
-            {title}
-          </CardTitle>
-          <CardDescription className="text-sm text-muted-foreground line-clamp-2">
-            {description}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              <span>{duration}m</span>
-            </div>
-            {completedCount > 0 && (
-              <div className="flex items-center gap-1">
-                <Users className="h-4 w-4" />
-                <span>{completedCount} completed</span>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Icon */}
+        <IconComponent 
+          className="text-foreground/75 size-6 group-hover:text-primary transition-colors" 
+          strokeWidth={1} 
+          aria-hidden 
+        />
+
+        {/* Category Badge */}
+        <div className="mt-2">
+          <span className="inline-block px-2 py-1 text-xs font-medium bg-muted rounded-md text-muted-foreground">
+            {category}
+          </span>
+        </div>
+
+        {/* Title */}
+        <h3 className="mt-6 text-sm md:text-base font-medium group-hover:text-primary transition-colors">
+          {title}
+        </h3>
+
+        {/* Description */}
+        <p className="text-muted-foreground relative z-20 mt-2 text-xs font-light line-clamp-3">
+          {description}
+        </p>
+
+
+        {/* Hover Effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      </div>
     </Link>
   );
 }

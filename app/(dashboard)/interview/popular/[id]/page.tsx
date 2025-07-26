@@ -222,10 +222,6 @@ export default async function PopularInterviewPage({
 
         <div className="flex justify-center gap-6 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            <span>{interview.duration} minutes</span>
-          </div>
-          <div className="flex items-center gap-2">
             <Target className="h-4 w-4" />
             <span>Targeted Practice</span>
           </div>
@@ -250,7 +246,6 @@ export default async function PopularInterviewPage({
         <CardContent>
           <InterviewSetupForm
             interviewId={interview.id}
-            defaultDuration={interview.duration}
             interviewTitle={interview.title}
           />
         </CardContent>
