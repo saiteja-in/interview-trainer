@@ -3,28 +3,34 @@
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { motion } from "framer-motion";
 import {
   Clock,
   MessageSquare,
   Play,
   Sparkles,
-  ChevronLeft,
-  ChevronRight,
-  Info,
+  CheckCircle2,
+  Brain,
+  Target,
+  Zap,
+  User,
+  ArrowRight,
+  Settings,
+  Timer,
+  FileQuestion,
+  TrendingUp,
+  Repeat2,
 } from "lucide-react";
-import { createPopularInterviewSession, createPopularInterviewSessionWithQuestions } from "@/actions/popular-interviews";
+import {
+  createPopularInterviewSession,
+  createPopularInterviewSessionWithQuestions,
+} from "@/actions/popular-interviews";
 import { getInterviewers } from "@/actions/interviewers";
 import { toast } from "sonner";
-import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface InterviewSetupFormProps {
   interviewId: string;
@@ -37,48 +43,45 @@ interface Interviewer {
   image: string;
   description: string;
   specialties: string[];
+  rapport?: number;
+  exploration?: number;
+  empathy?: number;
+  speed?: number;
 }
 
-const questionOptions = [
-  { value: 3, label: "3 Questions", description: "Quick practice" },
-  { value: 5, label: "5 Questions", description: "Standard session" },
-  { value: 8, label: "8 Questions", description: "Comprehensive" },
-  { value: 10, label: "10 Questions", description: "Deep dive" },
-];
-
-const durationOptions = [
-  { value: 5, label: "5 min" },
-  { value: 10, label: "10 min" },
-  { value: 15, label: "15 min" },
-  { value: "custom", label: "Custom" },
-];
-
 const difficultyOptions = [
-  { 
-    value: "beginner", 
-    label: "Beginner", 
-    description: "Basic concepts and fundamentals",
-    color: "bg-green-50 text-green-700 border-green-200"
+  {
+    value: "beginner",
+    label: "Beginner",
+    description: "Fundamental concepts",
+    icon: CheckCircle2,
+    color: "emerald",
   },
-  { 
-    value: "intermediate", 
-    label: "Intermediate", 
-    description: "Applied knowledge and problem-solving",
-    color: "bg-yellow-50 text-yellow-700 border-yellow-200"
+  {
+    value: "intermediate",
+    label: "Intermediate",
+    description: "Applied knowledge",
+    icon: Target,
+    color: "amber",
   },
-  { 
-    value: "advanced", 
-    label: "Advanced", 
-    description: "Complex scenarios and expert-level topics",
-    color: "bg-red-50 text-red-700 border-red-200"
+  {
+    value: "advanced",
+    label: "Advanced",
+    description: "Expert scenarios",
+    icon: Zap,
+    color: "red",
   },
-  { 
-    value: "mixed", 
-    label: "Mixed", 
-    description: "Combination of all difficulty levels",
-    color: "bg-purple-50 text-purple-700 border-purple-200"
+  {
+    value: "mixed",
+    label: "Mixed",
+    description: "All levels",
+    icon: Brain,
+    color: "purple",
   },
 ];
+
+const questionCounts = [3, 5, 8, 10];
+const durations = [5, 10, 15, 20];
 
 export function InterviewSetupForm({
   interviewId,
@@ -87,12 +90,12 @@ export function InterviewSetupForm({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [questionCount, setQuestionCount] = useState(5);
-  const [duration, setDuration] = useState<number | string>(10);
-  const [customDuration, setCustomDuration] = useState(20);
+  const [duration, setDuration] = useState(15);
   const [difficulty, setDifficulty] = useState("intermediate");
   const [selectedInterviewer, setSelectedInterviewer] = useState<string>("");
   const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
   const [loadingInterviewers, setLoadingInterviewers] = useState(true);
+  const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchInterviewers = async () => {
@@ -115,58 +118,49 @@ export function InterviewSetupForm({
     fetchInterviewers();
   }, []);
 
-  const slideLeft = () => {
-    const slider = document.getElementById("interviewer-slider");
-    if (slider) {
-      slider.scrollLeft = slider.scrollLeft - 120;
-    }
-  };
-
-  const slideRight = () => {
-    const slider = document.getElementById("interviewer-slider");
-    if (slider) {
-      slider.scrollLeft = slider.scrollLeft + 120;
-    }
-  };
-
-  const handleStartInterview = () => {
+  const handleStartInterview = async () => {
     startTransition(async () => {
       try {
         // First, generate AI questions
         toast.loading("Generating interview questions...");
-        
-        const finalDuration = duration === "custom" ? customDuration : Number(duration);
-        
+
         // Create difficulty-specific context
         const difficultyContext = {
-          beginner: "Focus on fundamental concepts, basic definitions, and simple problem-solving scenarios. Questions should be accessible to someone new to the topic.",
-          intermediate: "Include applied knowledge, practical scenarios, and moderate problem-solving challenges. Assume some experience with the topic.",
-          advanced: "Present complex scenarios, edge cases, and expert-level challenges. Questions should test deep understanding and advanced problem-solving skills.",
-          mixed: "Include a balanced mix of beginner, intermediate, and advanced questions to comprehensively assess knowledge across all levels."
+          beginner:
+            "Focus on fundamental concepts, basic definitions, and simple problem-solving scenarios. Questions should be accessible to someone new to the topic.",
+          intermediate:
+            "Include applied knowledge, practical scenarios, and moderate problem-solving challenges. Assume some experience with the topic.",
+          advanced:
+            "Present complex scenarios, edge cases, and expert-level challenges. Questions should test deep understanding and advanced problem-solving skills.",
+          mixed:
+            "Include a balanced mix of beginner, intermediate, and advanced questions to comprehensively assess knowledge across all levels.",
         };
 
-        const questionResponse = await fetch('/api/generate-questions', {
-          method: 'POST',
+        const questionResponse = await fetch("/api/generate-questions", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             name: interviewTitle,
             objective: `Conduct a ${difficulty} level interview for ${interviewTitle}`,
             number: questionCount,
-            context: `This is a technical interview focusing on ${interviewTitle} at ${difficulty} difficulty level. ${difficultyContext[difficulty as keyof typeof difficultyContext]} The interview should assess the candidate's technical skills, problem-solving abilities, and relevant experience in this domain.`
+            context: `This is a technical interview focusing on ${interviewTitle} at ${difficulty} difficulty level. ${
+              difficultyContext[difficulty as keyof typeof difficultyContext]
+            } The interview should assess the candidate's technical skills, problem-solving abilities, and relevant experience in this domain.`,
           }),
         });
 
         let generatedQuestions: string[] = [];
-        
+
         if (questionResponse.ok) {
           const questionData = await questionResponse.json();
           console.log("Generated questions response:", questionData);
-          
+
           try {
             const parsedResponse = JSON.parse(questionData.response);
-            generatedQuestions = parsedResponse.questions?.map((q: any) => q.question) || [];
+            generatedQuestions =
+              parsedResponse.questions?.map((q: any) => q.question) || [];
             console.log("Parsed questions:", generatedQuestions);
           } catch (parseError) {
             console.error("Error parsing questions:", parseError);
@@ -175,8 +169,12 @@ export function InterviewSetupForm({
 
         // Fallback questions if AI generation fails
         if (generatedQuestions.length === 0) {
-          generatedQuestions = Array.from({ length: questionCount }, (_, i) => 
-            `Tell me about your experience with ${interviewTitle} and how you would approach a challenging problem in this area. (Question ${i + 1})`
+          generatedQuestions = Array.from(
+            { length: questionCount },
+            (_, i) =>
+              `Tell me about your experience with ${interviewTitle} and how you would approach a challenging problem in this area. (Question ${
+                i + 1
+              })`
           );
         }
 
@@ -187,7 +185,7 @@ export function InterviewSetupForm({
         const result = await createPopularInterviewSessionWithQuestions({
           popularInterviewId: interviewId,
           questionCount,
-          duration: finalDuration,
+          duration,
           interviewerId: selectedInterviewer || undefined,
           questions: generatedQuestions,
         });
@@ -213,316 +211,418 @@ export function InterviewSetupForm({
   );
 
   return (
-    <div className="space-y-6">
-      {/* Interviewer Selection */}
-      <div className="space-y-4 px-1">
-        <Label className="text-sm font-medium">Select an Interviewer</Label>
-        {loadingInterviewers ? (
-          <div className="flex gap-4 px-2">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="flex flex-col items-center space-y-2">
-                <div className="w-20 h-20 bg-muted animate-pulse rounded-full" />
-                <div className="w-16 h-3 bg-muted animate-pulse rounded" />
-              </div>
-            ))}
+    <div className="w-full space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-4 animate-fade-in">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-primary/80 rounded-full text-primary-foreground font-medium shadow-lg">
+          <Sparkles className="h-4 w-4" />
+          AI-Powered Interview
+        </div>
+        <h1 className="text-3xl font-bold text-foreground">{interviewTitle}</h1>
+      </div>
+
+      {/* Main Setup Content */}
+      <div className="space-y-8">
+        {/* Interviewer Selection */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10">
+              <User className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg">Choose Your Interviewer</h3>
+              <p className="text-muted-foreground text-sm">
+                Each AI interviewer has unique expertise and interview style
+              </p>
+            </div>
           </div>
-        ) : (
-          <div className="relative px-2">
-            <div
-              id="interviewer-slider"
-              className="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide pb-4"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
-              {interviewers.map((interviewer) => (
+
+          {loadingInterviewers ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
                 <div
-                  key={interviewer.id}
-                  className={`flex-shrink-0 cursor-pointer transition-all duration-200 ${
-                    selectedInterviewer === interviewer.id
-                      ? "scale-105"
-                      : "hover:scale-102"
-                  }`}
-                  onClick={() => setSelectedInterviewer(interviewer.id)}
+                  key={i}
+                  className="border w-full rounded-md overflow-hidden bg-background p-3 animate-pulse"
                 >
-                  <div className="flex flex-col items-center space-y-3 p-3">
-                    <div className="relative">
-                      <div
-                        className={`w-20 h-20 rounded-full overflow-hidden border-3 transition-all duration-200 ${
-                          selectedInterviewer === interviewer.id
-                            ? "border-primary shadow-lg ring-2 ring-primary/20"
-                            : "border-muted-foreground/20 hover:border-muted-foreground/40"
-                        }`}
-                      >
-                        <div className="w-full h-full bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 flex items-center justify-center text-white text-xl font-semibold">
-                          {interviewer.name.charAt(0)}
+                  <div
+                    className="size-full bg-repeat bg-[length:30px_30px]"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'%3E%3Cg stroke-width='3.5' stroke='hsla(215, 16%25, 47%25, 0.3)' fill='none'%3E%3Crect width='400' height='400' x='0' y='0' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='0' cy='0' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='400' y='0' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='400' cy='0' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='800' y='0' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='800' cy='0' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='0' y='400' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='0' cy='400' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='400' y='400' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='400' cy='400' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='800' y='400' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='800' cy='400' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='0' y='800' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='0' cy='800' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='400' y='800' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='400' cy='800' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='800' y='800' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='800' cy='800' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3C/g%3E%3C/svg%3E")`,
+                    }}
+                  >
+                    <div className="size-full bg-gradient-to-tr from-background/90 via-background/40 to-background/10">
+                      <div className="text-left p-4 md:p-6 space-y-4">
+                        {/* Header with Avatar and Name */}
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 bg-muted rounded-full" />
+                            <div>
+                              <div className="h-5 bg-muted rounded w-24 mb-1" />
+                              <div className="h-3 bg-muted rounded w-16" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Description */}
+                        <div className="space-y-2">
+                          <div className="h-4 bg-muted rounded w-full" />
+                          <div className="h-4 bg-muted rounded w-3/4" />
+                        </div>
+
+                        {/* Rating bars */}
+                        <div className="space-y-2">
+                          {[1, 2, 3, 4].map((rating) => (
+                            <div
+                              key={rating}
+                              className="flex items-center gap-2"
+                            >
+                              <div className="h-3 bg-muted rounded w-16" />
+                              <div className="flex items-center gap-2 flex-1">
+                                <div className="flex-1 h-1.5 bg-muted rounded-full" />
+                                <div className="h-3 bg-muted rounded w-4" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Specialties */}
+                        <div className="flex flex-wrap gap-1">
+                          <div className="h-5 bg-muted rounded w-16" />
+                          <div className="h-5 bg-muted rounded w-20" />
+                          <div className="h-5 bg-muted rounded w-12" />
                         </div>
                       </div>
-                      {selectedInterviewer === interviewer.id && (
-                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-sm">
-                          <svg
-                            className="w-3.5 h-3.5 text-primary-foreground"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-center min-w-0 w-24">
-                      <p className="text-sm font-medium truncate text-foreground">
-                        {interviewer.name}
-                      </p>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {interviewers.map((interviewer, index) => {
+                const isSelected = selectedInterviewer === interviewer.id;
 
-            {interviewers.length > 4 && (
-              <div className="flex justify-center gap-2 mt-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={slideLeft}
-                  className="h-8 w-8 p-0 hover:bg-muted"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={slideRight}
-                  className="h-8 w-8 p-0 hover:bg-muted"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {selectedInterviewerData && (
-          <Card className="bg-gradient-to-r from-muted/40 to-muted/20 border border-border/50 shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-lg shadow-lg ring-2 ring-background">
-                    {selectedInterviewerData.name.charAt(0)}
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-semibold text-base text-foreground">
-                      {selectedInterviewerData.name}
-                    </h4>
-                    <span className="px-2 py-0.5 bg-primary/15 text-primary text-xs font-medium rounded-md">
-                      AI Interviewer
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-2">
-                    {selectedInterviewerData.description}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedInterviewerData.specialties
-                      .slice(0, 3)
-                      .map((specialty) => (
-                        <span
-                          key={specialty}
-                          className="px-3 py-1 bg-primary/10 hover:bg-primary/15 text-primary text-xs font-medium rounded-full border border-primary/20 transition-colors"
-                        >
-                          {specialty}
-                        </span>
-                      ))}
-                    {selectedInterviewerData.specialties.length > 3 && (
-                      <span className="px-3 py-1 bg-muted text-muted-foreground text-xs font-medium rounded-full border border-border">
-                        +{selectedInterviewerData.specialties.length - 3} more
-                      </span>
+                return (
+                  <div
+                    key={interviewer.id}
+                    className={cn(
+                      "border w-full rounded-md overflow-hidden cursor-pointer",
+                      "bg-background transition-all duration-300",
+                      isSelected
+                        ? "border-primary shadow-lg ring-2 ring-primary/20"
+                        : "border-border hover:border-primary/50 hover:shadow-md",
+                      "p-3"
                     )}
+                    onClick={() => setSelectedInterviewer(interviewer.id)}
+                  >
+                    <div
+                      className="size-full bg-repeat bg-[length:30px_30px]"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'%3E%3Cg stroke-width='3.5' stroke='hsla(215, 16%25, 47%25, 0.3)' fill='none'%3E%3Crect width='400' height='400' x='0' y='0' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='0' cy='0' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='400' y='0' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='400' cy='0' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='800' y='0' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='800' cy='0' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='0' y='400' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='0' cy='400' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='400' y='400' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='400' cy='400' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='800' y='400' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='800' cy='400' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='0' y='800' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='0' cy='800' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='400' y='800' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='400' cy='800' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3Crect width='400' height='400' x='800' y='800' opacity='0.15'%3E%3C/rect%3E%3Ccircle r='10.85' cx='800' cy='800' fill='hsla(215, 16%25, 47%25, 0.3)' stroke='none'%3E%3C/circle%3E%3C/g%3E%3C/svg%3E")`,
+                      }}
+                    >
+                      <div className="size-full bg-gradient-to-tr from-background/90 via-background/40 to-background/10">
+                        <div className="text-left p-4 md:p-6 space-y-4">
+                          {/* Header with Avatar and Selection */}
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="relative">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
+                                  {interviewer.name.charAt(0)}
+                                </div>
+                                {/* {isSelected && (
+                                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center shadow-sm">
+                                    <CheckCircle2 className="h-3 w-3 text-primary-foreground" />
+                                  </div>
+                                )} */}
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-bold mb-1 text-foreground">
+                                  {interviewer.name}
+                                </h3>
+                                <p className="text-xs text-foreground/60">
+                                  AI Interviewer
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Description */}
+                          <p className="text-wrap text-sm text-foreground/60 line-clamp-2">
+                            {interviewer.description}
+                          </p>
+
+                          {/* Rating bars */}
+                          <div className="space-y-2">
+                            {[
+                              {
+                                label: "Rapport",
+                                value: interviewer.rapport || 7,
+                                color: "bg-blue-500",
+                              },
+                              {
+                                label: "Exploration",
+                                value: interviewer.exploration || 7,
+                                color: "bg-green-500",
+                              },
+                              {
+                                label: "Empathy",
+                                value: interviewer.empathy || 7,
+                                color: "bg-purple-500",
+                              },
+                              {
+                                label: "Speed",
+                                value: interviewer.speed || 5,
+                                color: "bg-orange-500",
+                              },
+                            ].map((rating) => (
+                              <div
+                                key={rating.label}
+                                className="flex items-center gap-2 text-xs"
+                              >
+                                <span className="min-w-[60px] text-foreground/70">
+                                  {rating.label}
+                                </span>
+                                <div className="flex items-center gap-2 flex-1">
+                                  <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                                    <div
+                                      className={cn(
+                                        "h-full rounded-full transition-all",
+                                        rating.color
+                                      )}
+                                      style={{ width: `${rating.value * 10}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-xs font-medium w-4 text-foreground/80">
+                                    {rating.value}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Specialties */}
+                          <div className="flex flex-wrap gap-1">
+                            {interviewer.specialties
+                              .slice(0, 2)
+                              .map((specialty) => (
+                                <Badge
+                                  key={specialty}
+                                  variant="secondary"
+                                  className="text-xs"
+                                >
+                                  {specialty}
+                                </Badge>
+                              ))}
+                            {interviewer.specialties.length > 2 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{interviewer.specialties.length - 2} more
+                              </Badge>
+                            )}
+                          </div>
+
+                          {/* Selection Status */}
+                          {/* <div className="pt-2 border-t border-border/50">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-foreground/80">
+                                {isSelected ? "Selected" : "Select Interviewer"}
+                              </span>
+                              {isSelected ? (
+                                <CheckCircle2 className="w-4 h-4 text-primary" />
+                              ) : (
+                                <ArrowRight className="w-4 h-4 text-primary" />
+                              )}
+                            </div>
+                          </div> */}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <Separator />
+
+        {/* Configuration */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10">
+              <Settings className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg">Interview Configuration</h3>
+              <p className="text-muted-foreground text-sm">
+                Customize your practice session
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Questions */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <FileQuestion className="h-4 w-4 text-primary" />
+                <label className="font-medium text-sm">Questions</label>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {questionCounts.map((count) => (
+                  <button
+                    key={count}
+                    className={cn(
+                      "p-3 rounded-lg border-2 transition-all text-sm font-medium",
+                      questionCount === count
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
+                    )}
+                    onClick={() => setQuestionCount(count)}
+                  >
+                    {count}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Duration */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Timer className="h-4 w-4 text-primary" />
+                <label className="font-medium text-sm">Duration (min)</label>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {durations.map((time) => (
+                  <button
+                    key={time}
+                    className={cn(
+                      "p-3 rounded-lg border-2 transition-all text-sm font-medium",
+                      duration === time
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
+                    )}
+                    onClick={() => setDuration(time)}
+                  >
+                    {time}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Difficulty */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <label className="font-medium text-sm">Difficulty</label>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {difficultyOptions.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <button
+                      key={option.value}
+                      className={cn(
+                        "p-3 rounded-lg border-2 transition-all text-left",
+                        difficulty === option.value
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/50"
+                      )}
+                      onClick={() => setDifficulty(option.value)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon
+                          className={cn(
+                            "h-4 w-4",
+                            difficulty === option.value
+                              ? "text-primary"
+                              : "text-muted-foreground"
+                          )}
+                        />
+                        <div>
+                          <div
+                            className={cn(
+                              "font-medium text-sm",
+                              difficulty === option.value
+                                ? "text-primary"
+                                : "text-foreground"
+                            )}
+                          >
+                            {option.label}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {option.description}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Summary & Start */}
+        <div className="space-y-6">
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <Brain className="h-5 w-5 text-primary" />
+                <h4 className="font-medium">Session Overview</h4>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <div className="text-muted-foreground">Interviewer</div>
+                  <div className="font-medium">
+                    {selectedInterviewerData?.name || "Not selected"}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Questions</div>
+                  <div className="font-medium">{questionCount}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Duration</div>
+                  <div className="font-medium">{duration} min</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Per Question</div>
+                  <div className="font-medium">
+                    ~{Math.round(duration / questionCount)} min
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-        )}
-      </div>
 
-      {/* Configuration Grid */}
-      <div className="space-y-4">
-        {/* Question Count and Duration Row */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* Question Count Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="questions-select" className="text-sm font-medium">
-              Questions
-            </Label>
-            <Select
-              value={questionCount.toString()}
-              onValueChange={(value) => setQuestionCount(parseInt(value))}
-            >
-              <SelectTrigger id="questions-select">
-                <SelectValue placeholder="Select number of questions" />
-              </SelectTrigger>
-              <SelectContent>
-                {questionOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value.toString()}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Button
+            onClick={handleStartInterview}
+            disabled={isPending || !selectedInterviewer || loadingInterviewers}
+            className="w-full h-14 text-lg font-medium gap-3 bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 transition-opacity shadow-lg"
+            size="lg"
+          >
+            {isPending ? (
+              <>
+                <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                Preparing Interview...
+              </>
+            ) : (
+              <>
+                <Play className="h-5 w-5" />
+                Start Interview
+                <ArrowRight className="h-5 w-5" />
+              </>
+            )}
+          </Button>
 
-          {/* Duration Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="duration-select" className="text-sm font-medium">
-              Duration
-            </Label>
-            <Select
-              value={duration.toString()}
-              onValueChange={(value) => setDuration(value === "custom" ? "custom" : parseInt(value))}
-            >
-              <SelectTrigger id="duration-select">
-                <SelectValue placeholder="Select duration" />
-              </SelectTrigger>
-              <SelectContent>
-                {durationOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value.toString()}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Custom Duration Input */}
-        {duration === "custom" && (
-          <div className="space-y-2">
-            <Label htmlFor="custom-duration" className="text-sm font-medium">
-              Custom Duration (minutes)
-            </Label>
-            <div className="flex items-center gap-2">
-              <input
-                id="custom-duration"
-                type="number"
-                min="5"
-                max="120"
-                value={customDuration}
-                onChange={(e) => setCustomDuration(parseInt(e.target.value) || 20)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder="Enter duration"
-              />
-              <span className="text-sm text-muted-foreground">min</span>
-            </div>
-          </div>
-        )}
-
-        {/* Difficulty Selection */}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">Difficulty Level</Label>
-          <div className="grid grid-cols-2 gap-2">
-            {difficultyOptions.map((option) => (
-              <div
-                key={option.value}
-                className={`cursor-pointer rounded-lg border-2 p-3 transition-all hover:shadow-sm ${
-                  difficulty === option.value
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
-                }`}
-                onClick={() => setDifficulty(option.value)}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <div
-                    className={`w-3 h-3 rounded-full ${
-                      difficulty === option.value ? "bg-primary" : "bg-muted"
-                    }`}
-                  />
-                  <span className="font-medium text-sm">{option.label}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">{option.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* AI Features Card */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 dark:from-blue-950/20 dark:to-purple-950/20 dark:border-blue-800">
-        <CardContent className="pt-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="h-4 w-4 text-blue-600" />
-            <h4 className="font-medium text-sm text-blue-900 dark:text-blue-100">
-              AI-Powered Interview
-            </h4>
-          </div>
-          <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
-            Personalized questions generated based on {interviewTitle} and your
-            interviewer's expertise.
+          <p className="text-center text-xs text-muted-foreground">
+            You can pause and resume your interview at any time during the
+            session
           </p>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
-              <div className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
-              <span>Dynamic difficulty adjustment</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
-              <div className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
-              <span>Intelligent follow-up questions</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Session Summary */}
-      <Card className="bg-muted/30 border-0">
-        <CardContent className="pt-4">
-          <h4 className="font-medium text-sm mb-3">Session Overview</h4>
-          <div className="grid grid-cols-2 gap-y-2 text-sm">
-            <div className="text-muted-foreground">Topic:</div>
-            <div className="font-medium text-right">{interviewTitle}</div>
-
-            <div className="text-muted-foreground">Interviewer:</div>
-            <div className="font-medium text-right">
-              {selectedInterviewerData?.name || "Not selected"}
-            </div>
-
-            <div className="text-muted-foreground">Questions:</div>
-            <div className="font-medium text-right">{questionCount}</div>
-
-            <div className="text-muted-foreground">Duration:</div>
-            <div className="font-medium text-right">
-              {duration === "custom" ? customDuration : duration} min
-            </div>
-
-            <div className="text-muted-foreground">Difficulty:</div>
-            <div className="font-medium text-right capitalize">{difficulty}</div>
-
-            <div className="text-muted-foreground">Per question:</div>
-            <div className="font-medium text-right">
-              ~{Math.round((duration === "custom" ? customDuration : Number(duration)) / questionCount)} min
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Start Button */}
-      <Button
-        onClick={handleStartInterview}
-        disabled={isPending || !selectedInterviewer || loadingInterviewers}
-        className="w-full h-12 gap-2 text-base"
-        size="lg"
-      >
-        <Play className="h-5 w-5" />
-        {isPending ? "Starting Interview..." : "Start Interview"}
-      </Button>
-
-      <p className="text-xs text-muted-foreground text-center">
-        You can pause and resume the interview at any time
-      </p>
+        </div>
+      </div>
     </div>
   );
 }

@@ -233,23 +233,10 @@ export default async function PopularInterviewPage({
       </div>
 
       {/* Interview Setup Form */}
-      <Card className=" mx-auto">
-        <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2">
-            <Play className="h-5 w-5 text-primary" />
-            Configure Your Interview
-          </CardTitle>
-          <CardDescription>
-            Set up your personalized practice session
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <InterviewSetupForm
-            interviewId={interview.id}
-            interviewTitle={interview.title}
-          />
-        </CardContent>
-      </Card>
+      <InterviewSetupForm
+        interviewId={interview.id}
+        interviewTitle={interview.title}
+      />
     </div>
   );
 }
