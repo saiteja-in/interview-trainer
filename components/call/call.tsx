@@ -66,30 +66,49 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
   const [currentTimeDuration, setCurrentTimeDuration] = useState<string>("0");
   const lastUserResponseRef = useRef<HTMLDivElement | null>(null);
 
-  // Extract interview data from session with proper null checks
+  // Extract interview data from session with proper null checks for both types
+  const isPopularInterview = interviewSession?.type === 'popular';
+  const isBehavioralInterview = interviewSession?.type === 'behavioral';
+  
   const interview = {
     id: interviewSession?.id || "",
-    name: interviewSession?.popularInterview?.title || "Interview Session",
-    description:
-      interviewSession?.popularInterview?.description ||
-      "AI-powered interview session",
+    name: isPopularInterview 
+      ? interviewSession?.popularInterview?.title || "Interview Session"
+      : isBehavioralInterview
+      ? interviewSession?.behavioralInterview?.title || "Behavioral Interview"
+      : "Interview Session",
+    description: isPopularInterview
+      ? interviewSession?.popularInterview?.description || "AI-powered interview session"
+      : isBehavioralInterview
+      ? interviewSession?.behavioralInterview?.description || "AI-powered behavioral interview session"
+      : "AI-powered interview session",
     time_duration: interviewSession?.duration?.toString() || "30",
     theme_color: "#4F46E5",
     is_anonymous: false,
     interviewer_id: interviewSession?.interviewerId || null,
-    objective: `Conduct a ${
-      interviewSession?.popularInterview?.category || "general"
-    } interview focusing on ${
-      interviewSession?.popularInterview?.title || "various topics"
-    }`,
+    objective: isPopularInterview
+      ? `Conduct a ${
+          interviewSession?.popularInterview?.category || "general"
+        } interview focusing on ${
+          interviewSession?.popularInterview?.title || "various topics"
+        }`
+      : isBehavioralInterview
+      ? `Conduct a behavioral interview for ${
+          interviewSession?.behavioralInterview?.title || "general position"
+        } focusing on past experiences and behavioral competencies`
+      : "Conduct a general interview session",
     questions:
       interviewSession?.questions?.map((question: string, index: number) => ({
         question: question,
       })) ||
       Array.from({ length: interviewSession?.questionCount || 5 }, (_, i) => ({
-        question: `Tell me about your experience with ${
-          interviewSession?.popularInterview?.category || "this field"
-        } and how you would approach this type of challenge.`,
+        question: isPopularInterview
+          ? `Tell me about your experience with ${
+              interviewSession?.popularInterview?.category || "this field"
+            } and how you would approach this type of challenge.`
+          : isBehavioralInterview
+          ? `Tell me about a time when you demonstrated leadership skills in a challenging situation.`
+          : "Tell me about your experience and how you would approach challenges in this role.",
       })),
   };
 

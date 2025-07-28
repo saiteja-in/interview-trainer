@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Call from "@/components/call/call";
 import LoaderWithText from "@/components/loaders/loader-with-text/loaderWithText";
 import { getPopularInterviewSession } from "@/actions/popular-interviews";
+import { getBehavioralInterviewSession } from "@/actions/behavioral-interviews";
 
 type Props = {
   params: {
@@ -67,18 +68,46 @@ function InterviewClient({ params, user }: Props) {
     const fetchInterviewSession = async () => {
       setIsLoading(true);
       try {
-        const result = await getPopularInterviewSession(params.id);
-        console.log("result", result);
+        // Try to fetch as popular interview first
+        let result = await getPopularInterviewSession(params.id);
+        console.log("Popular interview result", result);
+
         if (result.success && result.data) {
-          console.log("Interview session data:", result.data);
+          console.log("Popular interview session data:", result.data);
           console.log("Session status:", result.data.status);
-          setInterviewSession(result.data);
+          setInterviewSession({ ...result.data, type: "popular" });
           document.title = `Interview Session - ${
             result.data.popularInterview?.title || "InterviewAI"
           }`;
         } else {
-          console.log("No data found or error:", result.error);
-          setInterviewNotFound(true);
+          // If not found as popular interview, try behavioral interview
+          console.log("Trying behavioral interview...");
+          const behavioralResult = await getBehavioralInterviewSession(
+            params.id
+          );
+          console.log("Behavioral interview result", behavioralResult);
+
+          if (behavioralResult.success && behavioralResult.data) {
+            console.log(
+              "Behavioral interview session data:",
+              behavioralResult.data
+            );
+            console.log("Session status:", behavioralResult.data.status);
+            setInterviewSession({
+              ...behavioralResult.data,
+              type: "behavioral",
+            });
+            document.title = `Interview Session - ${
+              behavioralResult.data.behavioralInterview?.title ||
+              "Behavioral Interview"
+            }`;
+          } else {
+            console.log(
+              "No data found in either interview type:",
+              behavioralResult.error
+            );
+            setInterviewNotFound(true);
+          }
         }
       } catch (error) {
         console.error(error);
@@ -115,7 +144,9 @@ function InterviewClient({ params, user }: Props) {
       <div className="md:hidden flex flex-col items-center md:h-[0px] justify-center my-auto">
         <div className="mt-48 px-3">
           <p className="text-center my-5 text-md font-semibold">
-            {interviewSession?.popularInterview?.title}
+            {interviewSession?.type === "behavioral"
+              ? interviewSession?.behavioralInterview?.title
+              : interviewSession?.popularInterview?.title}
           </p>
           <p className="text-center text-gray-600 my-5">
             Please use a PC to respond to the interview. Apologies for any

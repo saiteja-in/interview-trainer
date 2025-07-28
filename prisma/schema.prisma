@@ -13,17 +13,15 @@ enum UserRole {
   USER
 }
 
-enum JobRole {
-  FRONTEND_DEVELOPER
-  BACKEND_DEVELOPER
-  DATA_SCIENTIST
-  PRODUCT_MANAGER
-  UX_DESIGNER
-}
-
 enum InterviewStatus {
   IN_PROGRESS
   COMPLETED
+}
+
+enum ExperienceLevel {
+  ENTRY
+  MID
+  SENIOR
 }
 
 model User {
@@ -33,7 +31,6 @@ model User {
   emailVerified            DateTime?
   image                    String?
   role                     UserRole                  @default(USER)
-  jobRole                  JobRole?
   password                 String?
   resumeUrl                String? // URL to the resume stored on AWS S3
   extractedText            String?                   @db.Text // Added: full raw text extracted from the resume
@@ -44,6 +41,7 @@ model User {
   resumeJobs               ResumeJob[]
   agents                   Agent[]
   popularInterviewSessions PopularInterviewSession[]
+  behavioralInterviewSessions BehavioralInterviewSession[]
 }
 
 model Agent {
@@ -61,7 +59,6 @@ model Agent {
 model Interview {
   id        String              @id @default(cuid())
   userId    String
-  role      JobRole
   status    InterviewStatus     @default(IN_PROGRESS)
   startTime DateTime
   endTime   DateTime?
@@ -90,7 +87,6 @@ model Video {
 
 model Question {
   id         String              @id @default(cuid())
-  role       JobRole
   question   String
   interviews InterviewQuestion[]
 }
@@ -177,6 +173,7 @@ model Interviewer {
 
   // Relations
   sessions PopularInterviewSession[]
+  behavioralSessions BehavioralInterviewSession[]
 
   @@index([isActive])
   @@index([agentId])
@@ -239,6 +236,70 @@ model InterviewResponse {
 
   // Relations
   session PopularInterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+// Model for behavioral interview topics
+model BehavioralInterview {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  category    String // "Common Themes" or "Company Specific"
+  company     String? // Company name for company-specific questions (null for common themes)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  sessions BehavioralInterviewSession[]
+
+  @@index([category])
+  @@index([company])
+  @@index([isActive])
+}
+
+// Model to track user sessions for behavioral interviews
+model BehavioralInterviewSession {
+  id                    String          @id @default(cuid())
+  userId                String
+  behavioralInterviewId String
+  interviewerId         String? // Optional interviewer selection
+  questionCount         Int // Number of questions selected by user
+  duration              Int // Duration selected by user in minutes
+  experienceLevel       ExperienceLevel @default(MID) // Entry, Mid, Senior
+  targetRole            String @default("Software Engineer") // Target role for the interview
+  questions             String[] // AI-generated questions for this session
+  status                InterviewStatus @default(IN_PROGRESS)
+  startTime             DateTime
+  endTime               DateTime?
+  createdAt             DateTime        @default(now())
+
+  // Relations
+  user                User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  behavioralInterview BehavioralInterview      @relation(fields: [behavioralInterviewId], references: [id], onDelete: Cascade)
+  interviewer         Interviewer?             @relation(fields: [interviewerId], references: [id], onDelete: SetNull)
+  responses           BehavioralInterviewResponse[]
+
+  @@index([userId])
+  @@index([behavioralInterviewId])
+  @@index([interviewerId])
+  @@index([status])
+  @@index([experienceLevel])
+}
+
+// Model to store behavioral interview responses
+model BehavioralInterviewResponse {
+  id           String   @id @default(cuid())
+  sessionId    String
+  questionText String   @db.Text
+  userResponse String?  @db.Text
+  aiResponse   String?  @db.Text
+  responseTime Int? // Time taken to respond in seconds
+  createdAt    DateTime @default(now())
+
+  // Relations
+  session BehavioralInterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([sessionId])
 }
