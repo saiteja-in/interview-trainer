@@ -57,7 +57,7 @@ import { usePathname } from "next/navigation";
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith("/interview/behavioral")}>
-                  <Link href="/interview/new?type=behavioral">
+                  <Link href="/interview/behavioral">
                     <Users className="h-4 w-4" />
                     <span>Behavioral</span>
                   </Link>

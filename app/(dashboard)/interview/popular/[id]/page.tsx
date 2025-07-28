@@ -196,9 +196,7 @@ export default async function PopularInterviewPage({
               categoryInfo.bgColor
             )}
           >
-            <CategoryIcon
-              className={cn("h-10 w-10", categoryInfo.iconColor)}
-            />
+            <CategoryIcon className={cn("h-10 w-10", categoryInfo.iconColor)} />
           </div>
         </div>
 
@@ -212,9 +210,7 @@ export default async function PopularInterviewPage({
           </Badge>
         </div>
 
-        <h1 className="text-3xl font-bold leading-tight">
-          {interview.title}
-        </h1>
+        <h1 className="text-3xl font-bold leading-tight">{interview.title}</h1>
 
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           {interview.description}

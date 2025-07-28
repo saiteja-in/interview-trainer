@@ -22,7 +22,6 @@ import {
   Timer,
   FileQuestion,
   TrendingUp,
-  Repeat2,
 } from "lucide-react";
 import {
   createPopularInterviewSession,
@@ -95,7 +94,6 @@ export function InterviewSetupForm({
   const [selectedInterviewer, setSelectedInterviewer] = useState<string>("");
   const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
   const [loadingInterviewers, setLoadingInterviewers] = useState(true);
-  const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchInterviewers = async () => {
