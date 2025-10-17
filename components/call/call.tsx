@@ -65,6 +65,7 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
   const [time, setTime] = useState(0);
   const [currentTimeDuration, setCurrentTimeDuration] = useState<string>("0");
   const lastUserResponseRef = useRef<HTMLDivElement | null>(null);
+  const lastAiResponseRef = useRef<HTMLDivElement | null>(null);
 
   // Extract interview data from session with proper null checks for both types
   const isPopularInterview = interviewSession?.type === 'popular';
@@ -120,11 +121,18 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
   }
 
   useEffect(() => {
-    if (lastUserResponseRef.current) {
-      const { current } = lastUserResponseRef;
-      current.scrollTop = current.scrollHeight;
-    }
+    lastUserResponseRef.current?.scrollTo({
+      top: lastUserResponseRef.current.scrollHeight,
+      behavior: "smooth",
+    })
   }, [lastUserResponse]);
+
+  useEffect(() => {
+    lastAiResponseRef.current?.scrollTo({
+      top: lastAiResponseRef.current.scrollHeight,
+      behavior: "smooth",
+    })
+  }, [lastInterviewerResponse]);
 
   useEffect(() => {
     let intervalId: any;
@@ -252,7 +260,7 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-black">
       <div className="bg-white rounded-md md:w-[80%] w-[90%]">
-        <Card className="h-[88vh] p-4 rounded-lg border-2 border-b-4 border-r-4 border-black text-xl font-bold transition-all md:block dark:border-white">
+        <Card className="h-[88vh] p-4 rounded-lg border-2 border-b-4 relative border-r-4 border-black text-xl font-bold transition-all md:block dark:border-white">
           <div>
             <div className="h-[15px] my-4 ring-1 rounded-full ">
               <div
@@ -354,33 +362,31 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
             )}
 
             {isStarted && !isEnded && (
-              <div className="flex flex-row p-2 grow">
-                <div className="border-x-2 border-grey w-[50%] my-auto min-h-[70%]">
-                  <div className="flex flex-col justify-evenly">
-                    <div className="text-[22px] w-[80%] md:text-[26px] mt-4 min-h-[250px] mx-auto px-6">
-                      {lastInterviewerResponse}
+              <div className="flex flex-row p-2">
+                <div className="border-x-2 relative w-[50%] my-auto max-h-[70%]">
+                  <div
+                    ref={lastAiResponseRef} className="text-[16px] p-4 overflow-y-scroll w-[80%] mt-4 max-h-[250px] min-h-[250px] mx-auto px-6">
+                    {lastInterviewerResponse}
+                  </div>
+                  <div className="absolute b-4 left-0 right-0 flex flex-col mx-auto justify-center items-center align-middle">
+                    <div
+                      className={`w-[120px] h-[120px] rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 flex items-center justify-center text-white text-4xl font-semibold mx-auto my-auto ${activeTurn === "agent"
+                        ? `border-4 border-[${interview.theme_color}]`
+                        : ""
+                        }`}
+                    >
+                      AI
                     </div>
-                    <div className="flex flex-col mx-auto justify-center items-center align-middle">
-                      <div
-                        className={`w-[120px] h-[120px] rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 flex items-center justify-center text-white text-4xl font-semibold mx-auto my-auto ${activeTurn === "agent"
-                          ? `border-4 border-[${interview.theme_color}]`
-                          : ""
-                          }`}
-                      >
-                        AI
-                      </div>
-                      <div className="font-semibold">Interviewer</div>
-                    </div>
+                    <div className="font-semibold">Interviewer</div>
                   </div>
                 </div>
-                <div className="flex flex-col justify-evenly w-[50%]">
+
+                <div className="border-x-2 relative w-[50%] my-auto max-h-[70%]">
                   <div
-                    ref={lastUserResponseRef}
-                    className="text-[22px] w-[80%] md:text-[26px] mt-4 mx-auto h-[250px] px-6 overflow-y-auto"
-                  >
+                    ref={lastUserResponseRef} className="text-[16px] p-4 overflow-y-scroll w-[80%] mt-4 max-h-[250px] min-h-[250px] mx-auto px-6">
                     {lastUserResponse}
                   </div>
-                  <div className="flex flex-col mx-auto justify-center items-center align-middle">
+                  <div className="absolute b-4 left-0 right-0 flex flex-col mx-auto justify-center items-center align-middle">
                     <div
                       className={`w-[120px] h-[120px] rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-4xl font-semibold mx-auto my-auto ${activeTurn === "user"
                         ? `border-4 border-[${interview.theme_color}]`
@@ -396,7 +402,7 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
             )}
 
             {isStarted && !isEnded && (
-              <div className="items-center p-2">
+              <div className="items-center absolute bottom-0 left-0 right-0 p-2">
                 <AlertDialog>
                   <AlertDialogTrigger className="w-full">
                     <Button
