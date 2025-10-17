@@ -23,7 +23,7 @@ type PopupProps = {
 function PopupLoader() {
   return (
     <div className="bg-white rounded-md absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 md:w-[80%] w-[90%]">
-      <div className="h-[88vh] justify-center items-center rounded-lg border-2 border-b-4 border-r-4 border-black font-bold transition-all md:block dark:border-white">
+      <div className="h-[88vh] justify-center items-center rounded-lg border-2 border-b-4 border-r-4 border-black font-bold transition-all md:block dark:bg-black dark:border-white">
         <div className="relative flex flex-col items-center justify-center h-full">
           <LoaderWithText />
         </div>
@@ -76,9 +76,8 @@ function InterviewClient({ params, user }: Props) {
           console.log("Popular interview session data:", result.data);
           console.log("Session status:", result.data.status);
           setInterviewSession({ ...result.data, type: "popular" });
-          document.title = `Interview Session - ${
-            result.data.popularInterview?.title || "InterviewAI"
-          }`;
+          document.title = `Interview Session - ${result.data.popularInterview?.title || "InterviewAI"
+            }`;
         } else {
           // If not found as popular interview, try behavioral interview
           console.log("Trying behavioral interview...");
@@ -97,10 +96,9 @@ function InterviewClient({ params, user }: Props) {
               ...behavioralResult.data,
               type: "behavioral",
             });
-            document.title = `Interview Session - ${
-              behavioralResult.data.behavioralInterview?.title ||
+            document.title = `Interview Session - ${behavioralResult.data.behavioralInterview?.title ||
               "Behavioral Interview"
-            }`;
+              }`;
           } else {
             console.log(
               "No data found in either interview type:",
