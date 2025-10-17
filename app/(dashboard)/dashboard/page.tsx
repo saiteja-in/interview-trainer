@@ -179,7 +179,7 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
+      {/* <Tabs defaultValue="overview" className="space-y-4">
         <div className="overflow-x-auto pb-2">
           <TabsList className="w-full sm:w-auto">
             <TabsTrigger value="overview" className="text-xs sm:text-sm">
@@ -590,7 +590,7 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
     </div>
   );
 }

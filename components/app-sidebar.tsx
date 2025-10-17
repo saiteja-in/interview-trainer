@@ -57,7 +57,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
           <Button asChild className="w-full justify-start gap-2">
           <Link href="/interview/new">
             <MessageSquare className="h-4 w-4" />
-            <span>Start New Interview</span>
+            <span>Create Custom Interview</span>
           </Link>
         </Button>
           </div>
