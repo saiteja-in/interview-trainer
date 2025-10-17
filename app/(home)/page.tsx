@@ -7,18 +7,22 @@ import { Badge } from "@/components/ui/badge";
 import { Mail, User, Shield } from "lucide-react";
 import { MynaHero } from "@/components/home/hero";
 import { ExtendedUser } from "@/schemas";
+import { redirect } from "next/navigation";
 
 const Home = async () => {
   const user = (await currentUser()) as ExtendedUser;
-  // console.log(user)
+
+  if (user) {
+    redirect("/dashboard");
+  }
   return (
     <div className="min-h-screen bg-background">
-   
-      
+
+
       {/* <main className="flex justify-center items-center text-center min-h-screen">
         Home Page
       </main> */}
-         <NavBar user={user} />
+      <NavBar user={user} />
       <MynaHero user={user} />
     </div>
   );

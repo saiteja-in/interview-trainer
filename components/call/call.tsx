@@ -69,46 +69,42 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
   // Extract interview data from session with proper null checks for both types
   const isPopularInterview = interviewSession?.type === 'popular';
   const isBehavioralInterview = interviewSession?.type === 'behavioral';
-  
+
   const interview = {
     id: interviewSession?.id || "",
-    name: isPopularInterview 
+    name: isPopularInterview
       ? interviewSession?.popularInterview?.title || "Interview Session"
       : isBehavioralInterview
-      ? interviewSession?.behavioralInterview?.title || "Behavioral Interview"
-      : "Interview Session",
+        ? interviewSession?.behavioralInterview?.title || "Behavioral Interview"
+        : "Interview Session",
     description: isPopularInterview
       ? interviewSession?.popularInterview?.description || "AI-powered interview session"
       : isBehavioralInterview
-      ? interviewSession?.behavioralInterview?.description || "AI-powered behavioral interview session"
-      : "AI-powered interview session",
+        ? interviewSession?.behavioralInterview?.description || "AI-powered behavioral interview session"
+        : "AI-powered interview session",
     time_duration: interviewSession?.duration?.toString() || "30",
     theme_color: "#4F46E5",
     is_anonymous: false,
     interviewer_id: interviewSession?.interviewerId || null,
     objective: isPopularInterview
-      ? `Conduct a ${
-          interviewSession?.popularInterview?.category || "general"
-        } interview focusing on ${
-          interviewSession?.popularInterview?.title || "various topics"
-        }`
+      ? `Conduct a ${interviewSession?.popularInterview?.category || "general"
+      } interview focusing on ${interviewSession?.popularInterview?.title || "various topics"
+      }`
       : isBehavioralInterview
-      ? `Conduct a behavioral interview for ${
-          interviewSession?.behavioralInterview?.title || "general position"
+        ? `Conduct a behavioral interview for ${interviewSession?.behavioralInterview?.title || "general position"
         } focusing on past experiences and behavioral competencies`
-      : "Conduct a general interview session",
+        : "Conduct a general interview session",
     questions:
       interviewSession?.questions?.map((question: string, index: number) => ({
         question: question,
       })) ||
       Array.from({ length: interviewSession?.questionCount || 5 }, (_, i) => ({
         question: isPopularInterview
-          ? `Tell me about your experience with ${
-              interviewSession?.popularInterview?.category || "this field"
-            } and how you would approach this type of challenge.`
+          ? `Tell me about your experience with ${interviewSession?.popularInterview?.category || "this field"
+          } and how you would approach this type of challenge.`
           : isBehavioralInterview
-          ? `Tell me about a time when you demonstrated leadership skills in a challenging situation.`
-          : "Tell me about your experience and how you would approach challenges in this role.",
+            ? `Tell me about a time when you demonstrated leadership skills in a challenging situation.`
+            : "Tell me about your experience and how you would approach challenges in this role.",
       })),
   };
 
@@ -254,34 +250,33 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
   }, [interview.interviewer_id]);
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-black">
       <div className="bg-white rounded-md md:w-[80%] w-[90%]">
-        <Card className="h-[88vh] rounded-lg border-2 border-b-4 border-r-4 border-black text-xl font-bold transition-all md:block dark:border-white">
+        <Card className="h-[88vh] p-4 rounded-lg border-2 border-b-4 border-r-4 border-black text-xl font-bold transition-all md:block dark:border-white">
           <div>
-            <div className="m-4 h-[15px] rounded-lg border-[1px] border-black">
+            <div className="h-[15px] my-4 ring-1 rounded-full ">
               <div
-                className="bg-indigo-600 h-[15px] rounded-lg"
+                className="bg-indigo-600 h-[15px] rounded-full"
                 style={{
                   width: isEnded
                     ? "100%"
-                    : `${
-                        (Number(currentTimeDuration) /
-                          (Number(interviewTimeDuration) * 60)) *
-                        100
-                      }%`,
+                    : `${(Number(currentTimeDuration) /
+                      (Number(interviewTimeDuration) * 60)) *
+                    100
+                    }%`,
                 }}
               />
             </div>
             <CardHeader className="items-center p-1">
               {!isEnded && (
-                <CardTitle className="flex flex-row items-center text-lg md:text-xl font-bold mb-2">
+                <CardTitle className="flex dark:text-white text-black flex-row items-center text-lg md:text-xl font-bold mb-2">
                   {interview?.name}
                 </CardTitle>
               )}
               {!isEnded && (
                 <div className="flex mt-2 flex-row">
                   <AlarmClockIcon
-                    className="text-indigo-600 h-[1rem] w-[1rem] rotate-0 scale-100 dark:-rotate-90 dark:scale-0 mr-2 font-bold"
+                    className="text-indigo-600 h-[1rem] w-[1rem] rotate-0 scale-100 dark:-rotate-90  mr-2 font-bold"
                     style={{ color: interview.theme_color }}
                   />
                   <div className="text-sm font-normal">
@@ -299,11 +294,11 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
             </CardHeader>
 
             {!isStarted && !isEnded && (
-              <div className="w-fit min-w-[400px] max-w-[400px] mx-auto mt-2 border border-indigo-200 rounded-md p-2 m-2 bg-slate-50">
+              <div className="w-fit min-w-[400px] max-w-[400px] mx-auto mt-2 border border-indigo-200 dark:bg-gray-900 rounded-md p-2 m-2 bg-slate-50">
                 <div>
-                  <div className="p-2 font-normal text-sm mb-4 whitespace-pre-line">
+                  <div className="p-2  font-normal text-sm mb-4 whitespace-pre-line">
                     {interview?.description}
-                    <p className="font-bold text-sm">
+                    <p className="font-bold  text-sm">
                       {"\n"}
                       Ensure your volume is up and grant microphone access when
                       prompted. Additionally, please make sure you are in a
@@ -330,7 +325,7 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
                   <AlertDialog>
                     <AlertDialogTrigger>
                       <Button
-                        className="bg-white border ml-2 text-black min-w-15 h-10 rounded-lg flex flex-row justify-center mb-8"
+                        className="bg-white border hover:bg-gray-200 ml-2 text-black min-w-15 h-10 rounded-lg flex flex-row justify-center mb-8"
                         style={{ borderColor: interview.theme_color }}
                         disabled={Loading}
                       >
@@ -344,7 +339,7 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          className="bg-indigo-600 hover:bg-indigo-800"
+                          className="bg-indigo-600 text-white hover:bg-indigo-800"
                           onClick={async () => {
                             await onEndCallClick();
                           }}
@@ -367,11 +362,10 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
                     </div>
                     <div className="flex flex-col mx-auto justify-center items-center align-middle">
                       <div
-                        className={`w-[120px] h-[120px] rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 flex items-center justify-center text-white text-4xl font-semibold mx-auto my-auto ${
-                          activeTurn === "agent"
-                            ? `border-4 border-[${interview.theme_color}]`
-                            : ""
-                        }`}
+                        className={`w-[120px] h-[120px] rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 flex items-center justify-center text-white text-4xl font-semibold mx-auto my-auto ${activeTurn === "agent"
+                          ? `border-4 border-[${interview.theme_color}]`
+                          : ""
+                          }`}
                       >
                         AI
                       </div>
@@ -388,11 +382,10 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
                   </div>
                   <div className="flex flex-col mx-auto justify-center items-center align-middle">
                     <div
-                      className={`w-[120px] h-[120px] rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-4xl font-semibold mx-auto my-auto ${
-                        activeTurn === "user"
-                          ? `border-4 border-[${interview.theme_color}]`
-                          : ""
-                      }`}
+                      className={`w-[120px] h-[120px] rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-4xl font-semibold mx-auto my-auto ${activeTurn === "user"
+                        ? `border-4 border-[${interview.theme_color}]`
+                        : ""
+                        }`}
                     >
                       👤
                     </div>
@@ -411,7 +404,7 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
                       disabled={Loading}
                     >
                       End Interview{" "}
-                      <XCircleIcon className="h-[1.5rem] ml-2 w-[1.5rem] rotate-0 scale-100 dark:-rotate-90 dark:scale-0 text-red" />
+                      <XCircleIcon className="h-[1.5rem] ml-2 w-[1.5rem] rotate-0 scale-100 text-red" />
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
@@ -439,16 +432,16 @@ function Call({ interviewSession, user }: InterviewSessionProps) {
             )}
 
             {isEnded && (
-              <div className="w-fit min-w-[400px] max-w-[400px] mx-auto mt-2 border border-indigo-200 rounded-md p-2 m-2 bg-slate-50 absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
+              <div className="w-fit min-w-[400px] max-w-[400px] mx-auto mt-2 border border-indigo-200 rounded-md p-2 m-2 dark:bg-slate-700 bg-slate-50 absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
                 <div>
                   <div className="p-2 font-normal text-base mb-4 whitespace-pre-line">
-                    <CheckCircleIcon className="h-[2rem] w-[2rem] mx-auto my-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-indigo-500" />
-                    <p className="text-lg font-semibold text-center">
+                    <CheckCircleIcon className="h-[2rem] w-[2rem] mx-auto my-4 rotate-0 scale-100 transition-all   text-indigo-500" />
+                    <p className="text-lg  font-semibold text-center">
                       {isStarted
                         ? "Thank you for taking the time to participate in this interview"
                         : "Thank you very much for considering."}
                     </p>
-                    <p className="text-center">
+                    <p className="text-center  ">
                       {"\n"}You can close this tab now.
                     </p>
                   </div>
