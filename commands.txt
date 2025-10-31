@@ -1,2 +1,4 @@
 npx tsx prisma/seed-popular-interviews.ts
 npx tsx prisma/seed-behavioral-interviews.ts
+
+http://localhost:3000/api/create-interviewer         to invoke the interviewers in retell dashboard

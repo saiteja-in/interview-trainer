@@ -31,7 +31,6 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-
   const registerCallResponse = await retellClient.call.createWebCall({
     agent_id: interviewer.agentId,
     retell_llm_dynamic_variables: body.dynamic_data,
